@@ -65,23 +65,25 @@
             return note;
         }
 
-        public void RenameTask(Guid taskId, string newName)
+        public bool RenameTask(Guid taskId, string newName)
         {
             newName = (newName ?? "").Trim();
             if (newName.Length == 0)
                 throw new ArgumentException("Task name is required.", nameof(newName));
 
             var task = GetTask(taskId);
+            if (task is null) return false;
 
             // Allow "no-op rename"
             if (string.Equals(task.Name, newName, StringComparison.OrdinalIgnoreCase))
-                return;
+                return false;
 
             if (_tasks.Any(t => t.Id != taskId &&
                             string.Equals(t.Name, newName, StringComparison.OrdinalIgnoreCase)))
                 throw new ArgumentException("Task name already exists.", nameof(newName));
 
             task.Rename(newName);
+            return true;
         }
 
         public void RenameNote(Guid noteId, string newName)
@@ -103,10 +105,10 @@
             note.Rename(newName);
         }
 
-        public void RemoveTask(Guid taskId)
+        public bool RemoveTask(Guid taskId)
         {
             if (!_tasksById.Remove(taskId))
-                throw new KeyNotFoundException("Task not found.");
+                return false;
 
             var idx = _tasks.FindIndex(t => t.Id == taskId);
             if (idx >= 0) _tasks.RemoveAt(idx);
@@ -116,6 +118,8 @@
             {
                 task.RemoveDependency(taskId);
             }
+
+            return true;
         }
 
 
@@ -126,10 +130,10 @@
             _notes.RemoveAt(idx);
         }
 
-        public TaskItem GetTask(Guid id) =>
+        public TaskItem? GetTask(Guid id) =>
             _tasksById.TryGetValue(id, out var task)
                 ? task
-                : throw new KeyNotFoundException("Task not found.");
+                : null;
 
         public Note GetNote(Guid id) => _notes.FirstOrDefault(n => n.Id == id) ?? throw new KeyNotFoundException("Note not found.");
 

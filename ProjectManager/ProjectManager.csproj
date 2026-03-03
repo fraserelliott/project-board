@@ -20,9 +20,7 @@
     <Folder Include="Assets\Images\" />
     <Folder Include="Infrastructure\" />
     <Folder Include="Services\" />
-    <Folder Include="Stores\" />
     <Folder Include="Utils\" />
-    <Folder Include="Views\" />
   </ItemGroup>
 
   <ItemGroup>

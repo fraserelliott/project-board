@@ -1,32 +1,33 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using ProjectManager.Models.Domain;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ProjectManager.Stores;
 using System.Collections.ObjectModel;
 
 namespace ProjectManager.ViewModels;
 
-public sealed class ProjectViewModel : ViewModelBase
+public sealed class TasksViewModel : ObservableObject
 {
-    private readonly Project _project;
+    private readonly ProjectSession _session;
     public IRelayCommand<Guid> AdvanceStatusCommand { get; }
 
-    public ProjectViewModel(Project project)
+    public TasksViewModel(ProjectSession session)
     {
-        _project = project;
+        _session = session;
 
         Tasks = new ObservableCollection<TaskItemViewModel>(
-            _project.Tasks.Select(t => new TaskItemViewModel(_project, t))
+            _session.Project.Tasks.Select(t => new TaskItemViewModel(_session, t))
         );
 
-        AdvanceStatusCommand = new RelayCommand<Guid>(execute: AdvanceStatus, canExecute: id => !_project.IsBlocked(id));
+        AdvanceStatusCommand = new RelayCommand<Guid>(execute: AdvanceStatus, canExecute: id => !_session.IsTaskBlocked(id));
     }
 
     private void AdvanceStatus(Guid id)
     {
-        _project.AdvanceStatus(id);
+        _session.AdvanceStatus(id);
         RefreshAll();
     }
 
-    public string ProjectName => _project.Name;
+    public string ProjectName => _session.Project.Name;
 
     public ObservableCollection<TaskItemViewModel> Tasks { get; }
 
@@ -34,7 +35,7 @@ public sealed class ProjectViewModel : ViewModelBase
     public TaskItemViewModel? SelectedTask
     {
         get => _selectedTask;
-        set => SetField(ref _selectedTask, value);
+        set => SetProperty(ref _selectedTask, value);
     }
 
     public void RefreshAll()

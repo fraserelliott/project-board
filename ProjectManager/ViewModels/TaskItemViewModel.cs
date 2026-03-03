@@ -1,16 +1,17 @@
 ﻿using ProjectManager.Models.Domain;
+using ProjectManager.Stores;
 using TaskStatus = ProjectManager.Models.Domain.TaskStatus;
 
 namespace ProjectManager.ViewModels;
 
 public sealed class TaskItemViewModel : ViewModelBase
 {
-    private readonly Project _project;
+    private readonly ProjectSession _session;
     private readonly TaskItem _task;
 
-    public TaskItemViewModel(Project project, TaskItem task)
+    public TaskItemViewModel(ProjectSession session, TaskItem task)
     {
-        _project = project;
+        _session = session;
         _task = task;
     }
 
@@ -20,8 +21,8 @@ public sealed class TaskItemViewModel : ViewModelBase
     public int Priority => _task.Priority;
     public TaskStatus Status => _task.Status;
 
-    public bool IsBlocked => Status != TaskStatus.Completed && _project.IsBlocked(Id);
-    public bool IsStale => Status == TaskStatus.Completed && _project.IsStale(Id);
+    public bool IsBlocked => Status != TaskStatus.Completed && _session.IsTaskBlocked(Id);
+    public bool IsStale => Status == TaskStatus.Completed && _session.IsTaskStale(Id);
 
     public string ButtonText =>
         Status == TaskStatus.NotStarted ? "Start" :

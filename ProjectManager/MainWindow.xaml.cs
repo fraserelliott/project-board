@@ -1,4 +1,5 @@
 ﻿using ProjectManager.Models.Domain;
+using ProjectManager.Stores;
 using ProjectManager.ViewModels;
 using System.Windows;
 
@@ -18,6 +19,8 @@ public partial class MainWindow : Window
         project.AddDependency(a.Id, b.Id);
         project.AddDependency(b.Id, c.Id);
 
-        DataContext = new ProjectViewModel(project);
+        var session = new ProjectSession(project);
+
+        DataContext = new ShellViewModel(session);
     }
 }
