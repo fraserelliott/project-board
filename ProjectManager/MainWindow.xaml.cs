@@ -22,5 +22,8 @@ public partial class MainWindow : Window
         var session = new ProjectSession(project);
 
         DataContext = new ShellViewModel(session);
+
+        //var detailsWindow = new TaskDetailsWindow();
+        //detailsWindow.Show();
     }
 }

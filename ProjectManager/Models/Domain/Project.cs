@@ -143,6 +143,11 @@
             return _tasks.Any(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
+        public bool HasTaskWithId(Guid id)
+        {
+            return _tasksById.Keys.Contains(id);
+        }
+
         public bool HasNoteWithName(string name)
         {
             name = (name ?? "").Trim();

@@ -6,7 +6,17 @@
              xmlns:local="clr-namespace:ProjectManager.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <DataGrid Grid.Row="1"
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Button Content="New Task" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" />
+        </Grid>
+
+        <DataGrid Grid.Row="1"
           ItemsSource="{Binding Tasks}"
           SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
           SelectionMode="Single"
@@ -21,83 +31,85 @@
           HeadersVisibility="Column"
           RowStyle="{StaticResource TaskDataGridRowStyle}" 
           >
-        <DataGrid.Columns>
-            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
-            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" ElementStyle="{StaticResource GridTextStyle}"/>
-            <DataGridTemplateColumn Header="Alerts" Width="160">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <StackPanel.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="Margin" Value="0,0,8,0"/>
-                                </Style>
-                            </StackPanel.Resources>
-
-                            <!-- Blocked -->
-                            <Border CornerRadius="6"
-                            Padding="8,3"
-                            Margin="0,0,8,0"
-                            Background="{StaticResource BtnDanger}">
-                                <Border.Style>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" ElementStyle="{StaticResource GridTextStyle}"/>
+                <DataGridTemplateColumn Header="Alerts" Width="160">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <StackPanel.Resources>
                                     <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsBlocked}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
+                                        <Setter Property="Margin" Value="0,0,8,0"/>
                                     </Style>
-                                </Border.Style>
+                                </StackPanel.Resources>
 
-                                <TextBlock Foreground="{StaticResource BgPrimary}"
+                                <!-- Blocked -->
+                                <Border CornerRadius="6"
+                                    Padding="8,3"
+                                    Margin="0,0,8,0"
+                                    Background="{StaticResource BtnDanger}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsBlocked}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <TextBlock Foreground="{StaticResource BgPrimary}"
+                           FontFamily="{StaticResource FontPrimary}"
+                           FontSize="12"
+                           VerticalAlignment="Center">
+                            <Run FontFamily="Segoe MDL2 Assets" Text="&#xE711;"/>
+                            <Run Text="  Blocked"/>
+                                    </TextBlock>
+                                </Border>
+
+                                <!-- Stale -->
+                                <Border CornerRadius="6"
+                        Padding="8,3"
+                        Background="#F59E0B">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsStale}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <TextBlock Foreground="{StaticResource BgPrimary}"
                                FontFamily="{StaticResource FontPrimary}"
                                FontSize="12"
                                VerticalAlignment="Center">
-                                <Run FontFamily="Segoe MDL2 Assets" Text="&#xE711;"/>
-                                <Run Text="  Blocked"/>
-                                </TextBlock>
-                            </Border>
+                            <Run FontFamily="Segoe MDL2 Assets" Text="&#xE7BA;"/>
+                            <Run Text="  Stale"/>
+                                    </TextBlock>
+                                </Border>
 
-                            <!-- Stale -->
-                            <Border CornerRadius="6"
-                            Padding="8,3"
-                            Background="#F59E0B">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsStale}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-
-                                <TextBlock Foreground="{StaticResource BgPrimary}"
-                                   FontFamily="{StaticResource FontPrimary}"
-                                   FontSize="12"
-                                   VerticalAlignment="Center">
-                                <Run FontFamily="Segoe MDL2 Assets" Text="&#xE7BA;"/>
-                                <Run Text="  Stale"/>
-                                </TextBlock>
-                            </Border>
-
-                        </StackPanel>
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTemplateColumn Header="Actions">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <Button Content="{Binding ButtonText}"
-                    Command="{Binding DataContext.AdvanceStatusCommand,RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                    CommandParameter="{Binding Id}"
-                    Style="{StaticResource PrimaryButtonCompactStyle}" />
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" ElementStyle="{StaticResource GridTextStyle}"/>
-        </DataGrid.Columns>
-    </DataGrid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Actions">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding ButtonText}"
+                Command="{Binding DataContext.AdvanceStatusCommand,RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                CommandParameter="{Binding Id}"
+                Style="{StaticResource PrimaryButtonCompactStyle}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" ElementStyle="{StaticResource GridTextStyle}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+    
 </UserControl>

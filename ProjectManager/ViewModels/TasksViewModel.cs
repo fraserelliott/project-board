@@ -10,26 +10,10 @@ public sealed class TasksViewModel : ObservableObject
     private readonly ProjectSession _session;
     public IRelayCommand<Guid> AdvanceStatusCommand { get; }
 
-    public TasksViewModel(ProjectSession session)
-    {
-        _session = session;
-
-        Tasks = new ObservableCollection<TaskItemViewModel>(
-            _session.Project.Tasks.Select(t => new TaskItemViewModel(_session, t))
-        );
-
-        AdvanceStatusCommand = new RelayCommand<Guid>(execute: AdvanceStatus, canExecute: id => !_session.IsTaskBlocked(id));
-    }
-
-    private void AdvanceStatus(Guid id)
-    {
-        _session.AdvanceStatus(id);
-        RefreshAll();
-    }
-
     public string ProjectName => _session.Project.Name;
 
     public ObservableCollection<TaskItemViewModel> Tasks { get; }
+    private readonly Dictionary<Guid, TaskItemViewModel> _tasksById;
 
     private TaskItemViewModel? _selectedTask;
     public TaskItemViewModel? SelectedTask
@@ -38,10 +22,58 @@ public sealed class TasksViewModel : ObservableObject
         set => SetProperty(ref _selectedTask, value);
     }
 
+    public TasksViewModel(ProjectSession session)
+    {
+        _session = session;
+        Tasks = new ObservableCollection<TaskItemViewModel>();
+        _tasksById = new Dictionary<Guid, TaskItemViewModel>();
+
+        foreach (var task in _session.Project.Tasks)
+        {
+            var vm = new TaskItemViewModel(_session, task);
+
+            Tasks.Add(vm);
+            _tasksById[vm.Id] = vm;
+        }
+
+        AdvanceStatusCommand = new RelayCommand<Guid>(execute: AdvanceStatus, canExecute: id => !_session.IsTaskBlocked(id));
+    }
+
+    private void Notify(OperationResult result)
+    {
+        if (!result.Success)
+            return;
+
+        switch (result.Refresh)
+        {
+            case RefreshNone:
+                break;
+
+            case RefreshProject:
+                RefreshAll();
+                break;
+
+            case RefreshTask(var taskId):
+                GetTaskItemVM(taskId)?.Refresh();
+                break;
+        }
+    }
+
+    private void AdvanceStatus(Guid id)
+    {
+        var result = _session.AdvanceStatus(id);
+        Notify(result);
+    }
+
     public void RefreshAll()
     {
         OnPropertyChanged(nameof(ProjectName));
         AdvanceStatusCommand.NotifyCanExecuteChanged();
         foreach (var t in Tasks) t.Refresh();
     }
+
+    public TaskItemViewModel? GetTaskItemVM(Guid taskId) =>
+        _tasksById.TryGetValue(taskId, out var task)
+                ? task
+                : null;
 }
