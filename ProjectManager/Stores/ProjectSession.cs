@@ -62,9 +62,9 @@ public sealed class ProjectSession
         if (Project.HasTaskWithName(name))
             return new OperationResult(false, new RefreshProject(), "A task with this name already exists.");
 
-        Project.AddTask(name);
+        var task = Project.AddTask(name);
         MarkDirty();
-        return new OperationResult(true, new RefreshProject());
+        return new OperationResult(true, new RefreshTask(task.Id));
     }
 
     public OperationResult RemoveTask(Guid taskId)
@@ -91,4 +91,6 @@ public sealed class ProjectSession
         MarkDirty();
         return new OperationResult(true, new RefreshTask(taskId));
     }
+
+    public TaskItem? GetTask(Guid id) => Project.GetTask(id);
 }

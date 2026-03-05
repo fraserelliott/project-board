@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectManager.Services;
 using ProjectManager.Stores;
 
 namespace ProjectManager.ViewModels
@@ -7,7 +8,6 @@ namespace ProjectManager.ViewModels
     public sealed class ShellViewModel : ObservableObject
     {
         public ProjectSession Session { get; }
-
         public TasksViewModel Tasks { get; }
         public NotesViewModel Notes { get; }
 
@@ -31,12 +31,13 @@ namespace ProjectManager.ViewModels
         public bool IsTasksActive => CurrentViewModel == Tasks;
         public bool IsNotesActive => CurrentViewModel == Notes;
 
-
+        private PromptService _promptService;
 
         public ShellViewModel(ProjectSession session)
         {
             Session = session;
-            Tasks = new TasksViewModel(session);
+            _promptService = new PromptService();
+            Tasks = new TasksViewModel(session, _promptService);
             Notes = new NotesViewModel(session);
 
             ShowTasksCommand = new RelayCommand(() => CurrentViewModel = Tasks);

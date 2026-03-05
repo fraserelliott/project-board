@@ -25,5 +25,6 @@
 
     <Style x:Key="FieldTextBox" TargetType="TextBox">
         <Setter Property="Background" Value="{StaticResource DropdownBg}"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
     </Style>
 </ResourceDictionary>

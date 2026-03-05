@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectManager.Services;
 using ProjectManager.Stores;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace ProjectManager.ViewModels;
 
@@ -22,7 +24,9 @@ public sealed class TasksViewModel : ObservableObject
         set => SetProperty(ref _selectedTask, value);
     }
 
-    public TasksViewModel(ProjectSession session)
+    public ICommand NewTaskCommand { get; }
+
+    public TasksViewModel(ProjectSession session, IPromptService promptService)
     {
         _session = session;
         Tasks = new ObservableCollection<TaskItemViewModel>();
@@ -35,6 +39,20 @@ public sealed class TasksViewModel : ObservableObject
             Tasks.Add(vm);
             _tasksById[vm.Id] = vm;
         }
+
+        NewTaskCommand = new RelayCommand(() =>
+        {
+            var result = promptService.PromptForString("Add task", "Task name", "Add", name => session.AddTask(name));
+
+            if (result is not { Success: true })
+                return;
+
+            if (result.Refresh is RefreshTask r)
+            {
+                var task = session.GetTask(r.TaskId);
+                Tasks.Add(new TaskItemViewModel(session, task));
+            }
+        });
 
         AdvanceStatusCommand = new RelayCommand<Guid>(execute: AdvanceStatus, canExecute: id => !_session.IsTaskBlocked(id));
     }

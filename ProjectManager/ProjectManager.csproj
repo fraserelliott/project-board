@@ -19,7 +19,6 @@
     <Folder Include="Assets\Icons\" />
     <Folder Include="Assets\Images\" />
     <Folder Include="Infrastructure\" />
-    <Folder Include="Services\" />
     <Folder Include="Utils\" />
   </ItemGroup>
 

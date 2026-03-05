@@ -1,0 +1,38 @@
+﻿using ProjectManager.Stores;
+using ProjectManager.ViewModels;
+using ProjectManager.Views;
+using System.Windows;
+
+namespace ProjectManager.Services;
+
+public sealed class PromptService : IPromptService
+{
+    public OperationResult? PromptForString(
+        string title,
+        string label,
+        string submitText,
+        Func<string, OperationResult> tryAccept,
+        string? initialValue = null)
+    {
+        var vm = new PromptForStringViewModel(title, label, submitText, tryAccept, initialValue);
+
+        var dlg = new PromptForStringDialog
+        {
+            DataContext = vm
+        };
+
+        vm.RequestCloseSuccess += () =>
+        {
+            dlg.DialogResult = true;
+            dlg.Close();
+        };
+
+        // Optional: set owner if you have a current main window
+        dlg.Owner = Application.Current?.MainWindow;
+
+        var ok = dlg.ShowDialog() == true;
+        if (!ok) return null;
+
+        return vm.Result;
+    }
+}

@@ -13,7 +13,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,8">
-            <Button Content="New Task" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" />
+            <Button Content="New Task" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding NewTaskCommand}" HorizontalAlignment="Left" />
         </Grid>
 
         <DataGrid Grid.Row="1"
