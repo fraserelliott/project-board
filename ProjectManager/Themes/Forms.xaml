@@ -26,5 +26,13 @@
     <Style x:Key="FieldTextBox" TargetType="TextBox">
         <Setter Property="Background" Value="{StaticResource DropdownBg}"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+
+        <Style.Triggers>
+            <Trigger Property="IsReadOnly" Value="True">
+                <Setter Property="Background" Value="{StaticResource BrushFieldReadOnlyBackground}" />
+                <Setter Property="BorderBrush" Value="{StaticResource BrushBorderSubtle}" />
+                <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

@@ -108,6 +108,13 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" ElementStyle="{StaticResource GridTextStyle}"/>
+                <DataGridTemplateColumn Header="Actions">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Details" Command="{Binding DataContext.ShowDetailsCommand,RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding Id}" Style="{StaticResource PrimaryButtonCompactStyle}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectManager.Models.Domain;
 using ProjectManager.Services;
 using ProjectManager.Stores;
+using ProjectManager.Views;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ProjectManager.ViewModels;
@@ -11,6 +14,7 @@ public sealed class TasksViewModel : ObservableObject
 {
     private readonly ProjectSession _session;
     public IRelayCommand<Guid> AdvanceStatusCommand { get; }
+    public IRelayCommand<Guid> ShowDetailsCommand { get; }
 
     public string ProjectName => _session.Project.Name;
 
@@ -55,6 +59,7 @@ public sealed class TasksViewModel : ObservableObject
         });
 
         AdvanceStatusCommand = new RelayCommand<Guid>(execute: AdvanceStatus, canExecute: id => !_session.IsTaskBlocked(id));
+        ShowDetailsCommand = new RelayCommand<Guid>(execute: ShowDetails);
     }
 
     private void Notify(OperationResult result)
@@ -81,6 +86,21 @@ public sealed class TasksViewModel : ObservableObject
     {
         var result = _session.AdvanceStatus(id);
         Notify(result);
+    }
+
+    private void ShowDetails(Guid id)
+    {
+        if (_session.GetTask(id) is not TaskItem task)
+            return;
+
+        var vm = new TaskItemViewModel(_session, task);
+        var window = new TaskDetailsWindow
+        {
+            DataContext = vm,
+            Owner = Application.Current.MainWindow
+        };
+
+        window.Show();
     }
 
     public void RefreshAll()

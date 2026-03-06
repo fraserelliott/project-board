@@ -38,11 +38,11 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Style="{StaticResource FieldContainer}">
                     <TextBlock Style="{StaticResource VerticalFieldLabel}" Text="Name"/>
-                    <TextBox Text="{Binding Name}" MinWidth="200" Style="{StaticResource FieldTextBox}" />
+                    <TextBox Text="{Binding Name,Mode=OneWay}" IsReadOnly="{Binding IsNotEditing}" MinWidth="200" Style="{StaticResource FieldTextBox}" />
                 </StackPanel>
                 <StackPanel Grid.Column="2"  Style="{StaticResource FieldContainer}" >
                     <TextBlock Style="{StaticResource VerticalFieldLabel}" Text="Priority"/>
-                    <TextBox Text="{Binding Priority}" Style="{StaticResource FieldTextBox}"/>
+                    <TextBox Text="{Binding Priority,Mode=OneWay}" IsReadOnly="{Binding IsNotEditing}" Style="{StaticResource FieldTextBox}"/>
                 </StackPanel>
                 <ToggleButton Grid.Column="3" IsChecked="{Binding IsEditing, Mode=TwoWay}" Style="{StaticResource EditToggleButtonStyle}"/>
             </Grid>
@@ -61,7 +61,7 @@
             </Grid>
 
             <TextBlock Grid.Row="2" Style="{StaticResource VerticalFieldLabel}" Text="Description"/>
-            <TextBox Grid.Row="3" Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Style="{StaticResource FieldTextBox}"/>
+            <TextBox Grid.Row="3" Text="{Binding Description,Mode=OneWay}" IsReadOnly="{Binding IsNotEditing}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Style="{StaticResource FieldTextBox}"/>
 
             <Grid Grid.Row="4" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
