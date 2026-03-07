@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProjectManager.Views"
+        xmlns:controls="clr-namespace:ProjectManager.Controls"
         mc:Ignorable="d"
         Title="TaskDetailsWindow" Height="600" Width="800"
         Background="{StaticResource AppBackground}"
@@ -74,11 +75,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- TODO: tags control -->
                 <TextBlock Grid.Column="0" Style="{StaticResource HorizontalFieldLabel}" Text="Tags"/>
-                <TextBlock Grid.Column="1" Text="Placeholder for tags" />
+                <controls:TagsDisplay Grid.Column="1" Tags="{Binding Tags}"/>
+                <ComboBox Grid.Column="2"/>
             </Grid>
 
             <TextBlock Grid.Row="2" Style="{StaticResource VerticalFieldLabel}" Text="Description"/>

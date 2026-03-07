@@ -22,6 +22,13 @@ public sealed class TaskItemViewModel : ObservableObject
     public IRelayCommand ConfirmDeleteTask { get; }
     public IRelayCommand<Guid> AdvanceStatusCommand => Owner.AdvanceStatusCommand;
 
+    public IReadOnlyList<TagViewModel> Tags =>
+    _task.TagIds
+        .Select(id => Owner.GetTag(id))
+        .Where(tag => tag is not null)
+        .Cast<TagViewModel>()
+        .ToList();
+
     public TaskItemViewModel(ProjectSession session, TaskItem task, TasksViewModel owner)
     {
         _session = session;

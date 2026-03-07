@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+﻿using System.Windows.Media;
 
 namespace ProjectManager.Models.Domain
 {
@@ -8,6 +8,7 @@ namespace ProjectManager.Models.Domain
         private readonly List<TaskItem> _tasks = new();
         private readonly Dictionary<Guid, TaskItem> _tasksById = new();
         private readonly List<Tag> _tags = new();
+        public IReadOnlyList<Tag> Tags => _tags;
         private readonly Dictionary<Guid, Tag> _tagsById = new();
         public IReadOnlyList<TaskItem> Tasks => _tasks;
         private readonly List<Note> _notes = new();

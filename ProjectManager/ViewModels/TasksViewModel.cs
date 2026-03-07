@@ -30,6 +30,8 @@ public sealed class TasksViewModel : ObservableObject
 
     public ICommand NewTaskCommand { get; }
 
+    private readonly Dictionary<Guid, TagViewModel> _tags = new();
+
     public TasksViewModel(ProjectSession session, IPromptService promptService)
     {
         _session = session;
@@ -42,6 +44,12 @@ public sealed class TasksViewModel : ObservableObject
 
             Tasks.Add(vm);
             _tasksById[vm.Id] = vm;
+        }
+
+        foreach (var tag in _session.Project.Tags)
+        {
+            var vm = new TagViewModel(tag);
+            _tags[tag.Id] = vm;
         }
 
         NewTaskCommand = new RelayCommand(() =>
@@ -150,6 +158,17 @@ public sealed class TasksViewModel : ObservableObject
         {
             Tasks.Remove(task);
             _tasksById.Remove(taskId);
+        }
+    }
+
+    public TagViewModel? GetTag(Guid id) => _tags.TryGetValue(id, out var tag) ? tag : null;
+
+    public IEnumerable<TagViewModel> GetTags(IEnumerable<Guid> ids)
+    {
+        foreach (var id in ids)
+        {
+            if (_tags.TryGetValue(id, out var tag))
+                yield return tag;
         }
     }
 }
