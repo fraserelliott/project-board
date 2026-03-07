@@ -1,12 +1,17 @@
-﻿namespace ProjectManager.Models.Domain
+﻿using System.Drawing;
+
+namespace ProjectManager.Models.Domain
 {
     public sealed class Project
     {
         public string Name { get; private set; } = "";
         private readonly List<TaskItem> _tasks = new();
         private readonly Dictionary<Guid, TaskItem> _tasksById = new();
+        private readonly List<Tag> _tags = new();
+        private readonly Dictionary<Guid, Tag> _tagsById = new();
         public IReadOnlyList<TaskItem> Tasks => _tasks;
         private readonly List<Note> _notes = new();
+        private readonly Dictionary<Guid, Note> _notesById = new();
         public IReadOnlyList<Note> Notes => _notes;
 
         public Project(string name)
@@ -62,7 +67,27 @@
                 );
 
             _notes.Add(note);
+            _notesById[note.Id] = note;
             return note;
+        }
+
+        public Tag AddTag(string name, Color? color)
+        {
+            name = (name ?? "").Trim();
+            if (name.Length == 0)
+                throw new ArgumentException("Tag name is required.", nameof(name));
+
+            if (HasTagWithName(name))
+                throw new ArgumentException("Tag name already exists.", nameof(name));
+
+            var tag = new Tag(
+                id: Guid.NewGuid(),
+                name: name,
+                color: color
+                );
+            _tags.Add(tag);
+            _tagsById[tag.Id] = tag;
+            return tag;
         }
 
         public bool RenameTask(Guid taskId, string newName)
@@ -71,15 +96,13 @@
             if (newName.Length == 0)
                 throw new ArgumentException("Task name is required.", nameof(newName));
 
-            var task = GetTask(taskId);
-            if (task is null) return false;
+            var task = GetTask(taskId) ?? throw new ArgumentException("Task not found.", nameof(taskId));
 
             // Allow "no-op rename"
             if (string.Equals(task.Name, newName, StringComparison.OrdinalIgnoreCase))
                 return false;
 
-            if (_tasks.Any(t => t.Id != taskId &&
-                            string.Equals(t.Name, newName, StringComparison.OrdinalIgnoreCase)))
+            if (_tasks.Any(t => t.Id != taskId && string.Equals(t.Name, newName, StringComparison.OrdinalIgnoreCase)))
                 throw new ArgumentException("Task name already exists.", nameof(newName));
 
             task.Rename(newName);
@@ -92,17 +115,33 @@
             if (newName.Length == 0)
                 throw new ArgumentException("Note name is required.", nameof(newName));
 
-            var note = GetNote(noteId);
+            var note = GetNote(noteId) ?? throw new ArgumentException("Note not found.", nameof(noteId));
 
             // Allow "no-op rename"
             if (string.Equals(note.Name, newName, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            if (_notes.Any(n => n.Id != noteId &&
-                            string.Equals(n.Name, newName, StringComparison.OrdinalIgnoreCase)))
+            if (_notes.Any(n => n.Id != noteId && string.Equals(n.Name, newName, StringComparison.OrdinalIgnoreCase)))
                 throw new ArgumentException("Note name already exists.", nameof(newName));
 
             note.Rename(newName);
+        }
+
+        public void RenameTag(Guid tagId, string newName)
+        {
+            newName = (newName ?? "").Trim();
+            if (newName.Length == 0)
+                throw new ArgumentException("Tag name is required.", nameof(newName));
+
+            var tag = GetTag(tagId) ?? throw new ArgumentException("Tag not found.", nameof(tagId));
+
+            if (string.Equals(tag.Name, newName, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (_tags.Any(t => t.Id != tagId && string.Equals(t.Name, newName, StringComparison.OrdinalIgnoreCase)))
+                throw new ArgumentException("Tag name already exists.", nameof(newName));
+
+            tag.Rename(newName);
         }
 
         public bool RemoveTask(Guid taskId)
@@ -122,20 +161,37 @@
             return true;
         }
 
-
-        public void RemoveNote(Guid noteId)
+        public bool RemoveNote(Guid noteId)
         {
+            if (!_notesById.Remove(noteId))
+                return false;
+
             var idx = _notes.FindIndex(n => n.Id == noteId);
-            if (idx < 0) throw new KeyNotFoundException("Note not found.");
-            _notes.RemoveAt(idx);
+            if (idx >= 0) _notes.RemoveAt(idx);
+            return true;
         }
 
-        public TaskItem? GetTask(Guid id) =>
-            _tasksById.TryGetValue(id, out var task)
-                ? task
-                : null;
+        public bool RemoveTag(Guid tagId)
+        {
+            if (!_tagsById.Remove(tagId))
+                return false;
 
-        public Note GetNote(Guid id) => _notes.FirstOrDefault(n => n.Id == id) ?? throw new KeyNotFoundException("Note not found.");
+            var idx = _tags.FindIndex(t => t.Id == tagId);
+            if (idx >= 0) _tags.RemoveAt(idx);
+            return true;
+        }
+
+        public void RecolorTag(Guid tagId, Color? newColor)
+        {
+            var tag = GetTag(tagId) ?? throw new ArgumentException("Tag not found.", nameof(tagId));
+            tag.Recolor(newColor);
+        }
+
+        public TaskItem? GetTask(Guid id) => _tasksById.TryGetValue(id, out var task) ? task : null;
+
+        public Note? GetNote(Guid id) => _notesById.TryGetValue(id, out var note) ? note : null;
+
+        public Tag? GetTag(Guid id) => _tagsById.TryGetValue(id, out var tag) ? tag : null;
 
         public bool HasTaskWithName(string name)
         {
@@ -152,6 +208,12 @@
         {
             name = (name ?? "").Trim();
             return _notes.Any(n => string.Equals(n.Name, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool HasTagWithName(string name)
+        {
+            name = (name ?? "").Trim();
+            return _tags.Any(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
         public void StartTask(Guid taskId)
