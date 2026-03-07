@@ -10,7 +10,7 @@ public sealed class TagViewModel : ObservableObject
 
     public string Name => _tag.Name;
     public Brush? Brush => _tag.Color.HasValue ? new SolidColorBrush(_tag.Color.Value) : null;
-
+    public Guid Id => _tag.Id;
     public TagViewModel(Tag tag)
     {
         _tag = tag;

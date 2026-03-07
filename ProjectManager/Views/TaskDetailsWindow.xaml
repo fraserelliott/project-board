@@ -14,17 +14,13 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- header -->
                 <RowDefinition Height="Auto"/>
-                <!-- tags/status -->
                 <RowDefinition Height="Auto"/>
-                <!-- description label -->
                 <RowDefinition Height="*"/>
-                <!-- description (grows) -->
                 <RowDefinition Height="Auto"/>
-                <!-- deps/delete -->
             </Grid.RowDefinitions>
 
+            <!-- header -->
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -71,22 +67,30 @@
                 </StackPanel>
             </Grid>
 
+            <!-- tags-->
             <Grid Grid.Row="1" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- TODO: tags control -->
                 <TextBlock Grid.Column="0" Style="{StaticResource HorizontalFieldLabel}" Text="Tags"/>
                 <controls:TagsDisplay Grid.Column="1" Tags="{Binding Tags}"/>
-                <ComboBox Grid.Column="2"/>
+                <TextBlock Grid.Column="2" Style="{StaticResource HorizontalFieldLabel}" Text="Add Tag"/>
+                <ComboBox Grid.Column="3" Style="{StaticResource FieldComboBox}" ItemContainerStyle="{StaticResource FieldComboBoxItem}" Width="180" IsEditable="True" IsTextSearchEnabled="False"
+                  IsEnabled="{Binding IsEditing}" StaysOpenOnEdit="True" ItemsSource="{Binding AvailableTagOptions}" SelectedItem="{Binding SelectedTagOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Text="{Binding TagSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="DisplayText" />
             </Grid>
 
+            <!-- description label -->
             <TextBlock Grid.Row="2" Style="{StaticResource VerticalFieldLabel}" Text="Description"/>
+
+            <!-- description -->
             <TextBox Grid.Row="3" Text="{Binding Description,Mode=OneWay}" IsReadOnly="{Binding IsNotEditing}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Style="{StaticResource FieldTextBox}"/>
 
+            <!-- dependencies-->
             <Grid Grid.Row="4" Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

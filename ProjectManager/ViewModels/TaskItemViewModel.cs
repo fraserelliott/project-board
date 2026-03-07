@@ -15,6 +15,8 @@ public sealed class TaskItemViewModel : ObservableObject
     private string? _nameErrorMessage;
     private string? _draftPriority;
     private bool _hasPriorityError = false;
+    private string _tagSearchText = "";
+    private AddTagOption? _selectedTagOption;
 
     public TasksViewModel Owner { get; }
     public IRelayCommand RestoreNameCommand { get; }
@@ -37,6 +39,94 @@ public sealed class TaskItemViewModel : ObservableObject
         RestoreNameCommand = new RelayCommand(RestoreName);
         RestorePriorityCommand = new RelayCommand(RestorePriority);
         ConfirmDeleteTask = new RelayCommand(ConfirmDelete);
+    }
+
+    public string TagSearchText
+    {
+        get => _tagSearchText;
+        set
+        {
+            if (SetProperty(ref _tagSearchText, value))
+            {
+                OnPropertyChanged(nameof(AvailableTagOptions));
+            }
+        }
+    }
+
+    public AddTagOption? SelectedTagOption
+    {
+        get => _selectedTagOption;
+        set
+        {
+            if (SetProperty(ref _selectedTagOption, value) && value is not null)
+            {
+                HandleTagOptionSelected(value);
+            }
+        }
+    }
+
+    public IReadOnlyList<AddTagOption> AvailableTagOptions
+    {
+        get
+        {
+            List<AddTagOption> options = new();
+
+            string search = TagSearchText.Trim();
+
+            foreach (TagViewModel tag in Owner.GetAllTags())
+            {
+                bool alreadyOnTask = _task.TagIds.Contains(tag.Id);
+                if (alreadyOnTask)
+                    continue;
+
+                if (search.Length == 0 || tag.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+                {
+                    options.Add(new ExistingTagOption(tag));
+                }
+            }
+
+            bool exactMatchExists = options
+                .OfType<ExistingTagOption>()
+                .Any(x => string.Equals(x.Tag.Name, search, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(search) && !exactMatchExists)
+            {
+                options.Add(new CreateTagOption(search));
+            }
+
+            return options;
+        }
+    }
+
+    private void HandleTagOptionSelected(AddTagOption option)
+    {
+        switch (option)
+        {
+            case ExistingTagOption existing:
+                AddTag(existing.Tag.Id);
+                ResetTagPicker();
+                break;
+
+            case CreateTagOption create:
+                //OpenCreateTagDialog(create.Name);
+                ResetTagPicker();
+                break;
+        }
+    }
+
+    private void AddTag(Guid tagId)
+    {
+        _task.AddTag(tagId);
+        OnPropertyChanged(nameof(Tags));
+    }
+
+    private void ResetTagPicker()
+    {
+        _selectedTagOption = null;
+        _tagSearchText = "";
+        OnPropertyChanged(nameof(SelectedTagOption));
+        OnPropertyChanged(nameof(TagSearchText));
+        OnPropertyChanged(nameof(AvailableTagOptions));
     }
 
     public Guid Id => _task.Id;

@@ -163,12 +163,5 @@ public sealed class TasksViewModel : ObservableObject
 
     public TagViewModel? GetTag(Guid id) => _tags.TryGetValue(id, out var tag) ? tag : null;
 
-    public IEnumerable<TagViewModel> GetTags(IEnumerable<Guid> ids)
-    {
-        foreach (var id in ids)
-        {
-            if (_tags.TryGetValue(id, out var tag))
-                yield return tag;
-        }
-    }
+    public IReadOnlyList<TagViewModel> GetAllTags() => _tags.Values.ToList();
 }

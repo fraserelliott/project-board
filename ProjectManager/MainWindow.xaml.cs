@@ -26,6 +26,8 @@ public partial class MainWindow : Window
         var tag2 = project.AddTag("a longer tag name", Colors.Green);
         taskA.AddTag(tag2.Id);
 
+        project.AddTag("tag not on task", Colors.Pink);
+
         var session = new ProjectSession(project);
 
         DataContext = new ShellViewModel(session);
