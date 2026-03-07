@@ -98,30 +98,18 @@
                                     <ColumnDefinition Width="28"/>
                                 </Grid.ColumnDefinitions>
 
-                                <ContentPresenter x:Name="ContentSite"
-                                              Grid.Column="0"
-                                              Margin="{TemplateBinding Padding}"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Left"
-                                              Content="{TemplateBinding SelectionBoxItem}"
-                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                              IsHitTestVisible="False"/>
+                                <ContentPresenter x:Name="ContentSite" Grid.Column="0" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                                  Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" IsHitTestVisible="False"/>
 
-                                <TextBox x:Name="PART_EditableTextBox"
-                                     Grid.Column="0"
-                                     Margin="{TemplateBinding Padding}"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     Foreground="{TemplateBinding Foreground}"
-                                     VerticalContentAlignment="Center"
-                                     Visibility="Hidden"/>
+                                <TextBox x:Name="PART_EditableTextBox" Grid.Column="0" Margin="{TemplateBinding Padding}" Background="Transparent" BorderThickness="0"
+                                         Foreground="{TemplateBinding Foreground}" VerticalContentAlignment="Center" Visibility="Hidden"/>
 
                                 <ToggleButton Grid.Column="1" x:Name="DropDownButton" Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                               ClickMode="Press" Background="Transparent" BorderThickness="0">
                                     <ToggleButton.Template>
                                         <ControlTemplate TargetType="ToggleButton">
-                                            <Border x:Name="DropDownButtonBorder" Background="{TemplateBinding Background}" CornerRadius="0,4,4,0">
+                                            <Border x:Name="DropDownButtonBorder" Background="{TemplateBinding Background}" CornerRadius="0,4,4,0" BorderThickness="1,0,0,0">
                                                 <Path Width="10" Height="6" Stretch="Fill" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ComboBox}}" HorizontalAlignment="Center"
                                                       VerticalAlignment="Center" Data="M 0 0 L 10 0 L 5 6 Z"/>
                                             </Border>
