@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectManager.Models.Domain;
+using ProjectManager.Services;
 using ProjectManager.Stores;
 using TaskStatus = ProjectManager.Models.Domain.TaskStatus;
 
@@ -18,6 +19,7 @@ public sealed class TaskItemViewModel : ObservableObject
     public TasksViewModel Owner { get; }
     public IRelayCommand RestoreNameCommand { get; }
     public IRelayCommand RestorePriorityCommand { get; }
+    public IRelayCommand ConfirmDeleteTask { get; }
     public IRelayCommand<Guid> AdvanceStatusCommand => Owner.AdvanceStatusCommand;
 
     public TaskItemViewModel(ProjectSession session, TaskItem task, TasksViewModel owner)
@@ -25,8 +27,9 @@ public sealed class TaskItemViewModel : ObservableObject
         _session = session;
         _task = task;
         Owner = owner;
-        RestoreNameCommand = new RelayCommand(execute: RestoreName);
-        RestorePriorityCommand = new RelayCommand(execute: RestorePriority);
+        RestoreNameCommand = new RelayCommand(RestoreName);
+        RestorePriorityCommand = new RelayCommand(RestorePriority);
+        ConfirmDeleteTask = new RelayCommand(ConfirmDelete);
     }
 
     public Guid Id => _task.Id;
@@ -145,5 +148,14 @@ public sealed class TaskItemViewModel : ObservableObject
 
         OnPropertyChanged(nameof(FormPriority));
         OnPropertyChanged(nameof(HasPriorityError));
+    }
+
+    private void ConfirmDelete()
+    {
+        if (new ConfirmDialogService()
+        .PromptConfirm("Are you sure you want to delete this task?", "Yes"))
+        {
+            Owner.DeleteTask(Id);
+        }
     }
 }

@@ -88,7 +88,7 @@
                 <!-- TODO: dependencies control -->
                 <TextBlock Grid.Column="0" Style="{StaticResource HorizontalFieldLabel}" Text="Dependencies"/>
                 <TextBlock Grid.Column="1" Text="Placeholder for Dependencies" />
-                <Button Grid.Column="2" Content="Delete" Style="{StaticResource DangerButton}"/>
+                <Button Grid.Column="2" Content="Delete" Command="{Binding ConfirmDeleteTask}" Style="{StaticResource DangerButton}"/>
             </Grid>
         </Grid>
     </Border>

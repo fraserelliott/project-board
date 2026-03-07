@@ -131,4 +131,25 @@ public sealed class TasksViewModel : ObservableObject
         _tasksById.TryGetValue(taskId, out var task)
                 ? task
                 : null;
+
+    public void DeleteTask(Guid taskId)
+    {
+        OperationResult result = _session.RemoveTask(taskId);
+
+        if (!result.Success)
+        {
+            return;
+        }
+
+        if (_openTaskWindows.TryGetValue(taskId, out var window))
+        {
+            window.Close();
+        }
+
+        if (_tasksById.TryGetValue(taskId, out var task))
+        {
+            Tasks.Remove(task);
+            _tasksById.Remove(taskId);
+        }
+    }
 }

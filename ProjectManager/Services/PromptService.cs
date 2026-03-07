@@ -27,7 +27,6 @@ public sealed class PromptService : IPromptService
             dlg.Close();
         };
 
-        // Optional: set owner if you have a current main window
         dlg.Owner = Application.Current?.MainWindow;
 
         var ok = dlg.ShowDialog() == true;
