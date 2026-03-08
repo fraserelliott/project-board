@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 
-namespace ProjectManager.ViewModels;
+namespace ProjectManager.ViewModels.Tasks;
 
 public sealed class TasksViewModel : ObservableObject
 {

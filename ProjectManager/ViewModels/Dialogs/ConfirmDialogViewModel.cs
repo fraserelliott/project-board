@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
 
-namespace ProjectManager.ViewModels;
+namespace ProjectManager.ViewModels.Dialogs;
 
 public sealed class ConfirmDialogViewModel : ObservableObject
 {

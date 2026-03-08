@@ -2,7 +2,7 @@
 using ProjectManager.Models.Domain;
 using System.Windows.Media;
 
-namespace ProjectManager.ViewModels;
+namespace ProjectManager.ViewModels.Tasks;
 
 public sealed class TagViewModel : ObservableObject
 {

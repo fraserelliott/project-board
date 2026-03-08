@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using ProjectManager.Services;
 using ProjectManager.Stores;
+using ProjectManager.ViewModels.Notes;
+using ProjectManager.ViewModels.Tasks;
 
 namespace ProjectManager.ViewModels
 {

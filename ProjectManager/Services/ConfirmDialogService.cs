@@ -1,4 +1,4 @@
-﻿using ProjectManager.ViewModels;
+﻿using ProjectManager.ViewModels.Dialogs;
 using ProjectManager.Views;
 using System.Windows;
 

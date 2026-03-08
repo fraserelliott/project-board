@@ -1,4 +1,4 @@
-﻿namespace ProjectManager.ViewModels;
+﻿namespace ProjectManager.ViewModels.Tasks;
 
 public sealed class CreateTagOption : AddTagOption
 {

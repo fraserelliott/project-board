@@ -5,7 +5,7 @@ using ProjectManager.Services;
 using ProjectManager.Stores;
 using TaskStatus = ProjectManager.Models.Domain.TaskStatus;
 
-namespace ProjectManager.ViewModels;
+namespace ProjectManager.ViewModels.Tasks;
 
 public sealed class TaskItemViewModel : ObservableObject
 {

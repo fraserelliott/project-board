@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using ProjectManager.Stores;
 using System.Windows.Input;
 
-namespace ProjectManager.ViewModels;
+namespace ProjectManager.ViewModels.Dialogs;
 
 public sealed class PromptForStringViewModel : ObservableObject
 {

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using ProjectManager.Stores;
 
-namespace ProjectManager.ViewModels
+namespace ProjectManager.ViewModels.Notes
 {
     public sealed class NotesViewModel : ObservableObject
     {
