@@ -100,18 +100,29 @@ public sealed class ProjectSession
 
     public TaskItem? GetTask(Guid id) => Project.GetTask(id);
 
-    public OperationResult AddTag(Guid taskId, string name, Color? color)
+    public OperationResult AddTagToTask(Guid taskId, Guid tagId)
     {
-        name = (name ?? "").Trim();
         var task = Project.GetTask(taskId);
+        var tag = Project.GetTag(tagId);
 
         if (task == null)
             return new OperationResult(false, new RefreshProject(), "Task not found.");
+        if (!Project.HasTagWithId(tagId))
+            return new OperationResult(false, new RefreshProject(), "Tag not found.");
+        task.AddTag(tagId);
+        MarkDirty();
+        return new OperationResult(true, new RefreshTask(taskId));
+    }
+
+    public OperationResult AddTagToProject(string name, Color? color)
+    {
+        name = (name ?? "").Trim();
+
+        if (String.IsNullOrEmpty(name))
+            return new OperationResult(false, new RefreshNone(), "Tag name cannot be empty.");
         if (Project.HasTagWithName(name))
             return new OperationResult(false, new RefreshNone(), "A tag with this name already exists.");
         var tag = Project.AddTag(name, color);
-        task.AddTag(tag.Id);
-
         MarkDirty();
         return new OperationResult(true, new RefreshTag(tag.Id));
     }
@@ -121,5 +132,41 @@ public sealed class ProjectSession
     public bool WouldCreateCycle(Guid taskId, Guid dependencyId)
     {
         return Project.WouldCreateCycle(taskId, dependencyId);
+    }
+
+    public OperationResult RemoveTagFromTask(Guid taskId, Guid tagId)
+    {
+        var task = GetTask(taskId);
+        if (task is null)
+            return new OperationResult(false, new RefreshProject(), "Task not found.");
+
+        task.RemoveTag(tagId);
+        MarkDirty();
+        return new OperationResult(true, new RefreshTask(taskId));
+    }
+
+    public OperationResult AddDependencyToTask(Guid taskId, Guid dependencyId)
+    {
+        var task = GetTask(taskId);
+        if (task is null)
+            return new OperationResult(false, new RefreshProject(), "Task not found.");
+
+        if (Project.WouldCreateCycle(taskId, dependencyId))
+            return new OperationResult(false, new RefreshNone(), "Adding this dependency would create a cycle.");
+
+        task.AddDependency(dependencyId);
+        MarkDirty();
+        return new OperationResult(true, new RefreshProject());
+    }
+
+    public OperationResult UpdatePriorityOnTask(Guid taskId, int priority)
+    {
+        var task = GetTask(taskId);
+        if (task is null)
+            return new OperationResult(false, new RefreshProject(), "Task not found.");
+
+        task.SetPriority(priority);
+        MarkDirty();
+        return new OperationResult(true, new RefreshTask(taskId));
     }
 }

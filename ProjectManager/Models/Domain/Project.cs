@@ -217,6 +217,11 @@ namespace ProjectManager.Models.Domain
             return _tags.Any(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 
+        public bool HasTagWithId(Guid id)
+        {
+            return _tagsById.Keys.Contains(id);
+        }
+
         public void StartTask(Guid taskId)
         {
             if (IsBlocked(taskId))

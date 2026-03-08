@@ -60,9 +60,12 @@ public sealed class TaskItemViewModel : ObservableObject
         if (!_task.TagIds.Contains(tagId))
             return;
 
-        _task.RemoveTag(tagId);
-        OnPropertyChanged(nameof(Tags));
-        OnPropertyChanged(nameof(AvailableTagOptions));
+        var result = _session.RemoveTagFromTask(Id, tagId);
+        if (result.Success)
+        {
+            OnPropertyChanged(nameof(Tags));
+            OnPropertyChanged(nameof(AvailableTagOptions));
+        }
     }
 
     public string TagSearchText
@@ -190,7 +193,8 @@ public sealed class TaskItemViewModel : ObservableObject
 
     private void HandleDependencyOptionSelected(AddDependencyOption option)
     {
-        if (!_task.AddDependency(option.Task.Id)) return;
+        var result = _session.AddDependencyToTask(Id, option.Task.Id);
+        if (!result.Success) return;
         var dep = _session.GetTask(option.Task.Id);
         if (dep is null) return;
         Dependencies.Add(new DependencyViewModel(_task, dep));
@@ -201,16 +205,21 @@ public sealed class TaskItemViewModel : ObservableObject
     {
         var result = new TagDialogService().PromptNewTag((name, color) =>
         {
-            return _session.AddTag(_task.Id, name, color);
+            return _session.AddTagToProject(name, color);
         }, name);
 
-        Owner.TryAddTag(result);
+        var tagId = Owner.TryAddTag(result);
+        if (tagId == null) return;
+        AddTag((Guid)tagId);
     }
 
     private void AddTag(Guid tagId)
     {
-        _task.AddTag(tagId);
-        OnPropertyChanged(nameof(Tags));
+        var result = _session.AddTagToTask(Id, tagId);
+        if (result.Success)
+        {
+            OnPropertyChanged(nameof(Tags));
+        }
     }
 
     private void ResetTagPicker()
@@ -260,7 +269,7 @@ public sealed class TaskItemViewModel : ObservableObject
         {
             if (int.TryParse(value, out var priority))
             {
-                _task.SetPriority(priority);
+                _session.UpdatePriorityOnTask(Id, priority);
                 _draftPriority = null;
                 _hasPriorityError = false;
             }

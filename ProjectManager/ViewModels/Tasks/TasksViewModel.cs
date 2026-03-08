@@ -168,16 +168,18 @@ public sealed class TasksViewModel : ObservableObject
 
     public TagViewModel? GetTag(Guid id) => _tags.TryGetValue(id, out var tag) ? tag : null;
 
-    public void TryAddTag(OperationResult? result)
+    public Guid? TryAddTag(OperationResult? result)
     {
         if (result is not null && result.Success && result.Refresh is RefreshTag refreshTag)
         {
             var tag = _session.GetTag(refreshTag.TagId);
-            if (tag is null) return;
-            if (_tags.ContainsKey(refreshTag.TagId)) return;
+            if (tag is null) return null;
+            if (_tags.ContainsKey(refreshTag.TagId)) return null;
             _tags.Add(refreshTag.TagId, new TagViewModel(tag));
             Notify(result);
+            return refreshTag.TagId;
         }
+        return null;
     }
 
     public IReadOnlyList<TagViewModel> GetAllTags() => _tags.Values.ToList();
