@@ -17,6 +17,7 @@
                 <ResourceDictionary Source="/Themes/DataGrid.xaml"/>
                 <ResourceDictionary Source="/Themes/Forms.xaml"/>
                 <ResourceDictionary Source="/Themes/Pills.xaml"/>
+                <ResourceDictionary Source="/Themes/Menu.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

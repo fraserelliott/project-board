@@ -15,16 +15,6 @@
         <DataTemplate DataType="{x:Type vmnotes:NotesViewModel}">
             <view:NotesView />
         </DataTemplate>
-
-        <Style TargetType="Menu">
-            <Setter Property="Background" Value="{StaticResource AppBackground}"/>
-            <Setter Property="Foreground" Value="#F1F5F9"/>
-        </Style>
-
-        <Style TargetType="MenuItem">
-            <Setter Property="Foreground" Value="#F1F5F9"/>
-            <Setter Property="Padding" Value="10,6"/>
-        </Style>
     </Window.Resources>
 
     <Grid>

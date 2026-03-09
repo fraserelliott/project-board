@@ -127,6 +127,27 @@ public sealed class ProjectSession
         return new OperationResult(true, new RefreshTag(tag.Id));
     }
 
+    public OperationResult UpdateTag(Guid tagId, string newName, Color? newColor)
+    {
+        newName = (newName ?? "").Trim();
+
+        if (String.IsNullOrEmpty(newName))
+            return new OperationResult(false, new RefreshNone(), "Tag name cannot be empty.");
+
+        var tag = Project.GetTag(tagId);
+        if (tag is null)
+            return new OperationResult(false, new RefreshProject(), "Tag not found.");
+
+        if (string.Equals(tag.Name, newName, StringComparison.OrdinalIgnoreCase) && tag.Color.Equals(newColor))
+            return new OperationResult(true, new RefreshNone());
+
+
+        tag.Rename(newName);
+        tag.Recolor(newColor);
+        MarkDirty();
+        return new OperationResult(true, new RefreshProject());
+    }
+
     public Tag? GetTag(Guid id) => Project.GetTag(id);
 
     public bool WouldCreateCycle(Guid taskId, Guid dependencyId)

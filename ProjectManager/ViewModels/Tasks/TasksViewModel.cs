@@ -5,7 +5,6 @@ using ProjectManager.Stores;
 using ProjectManager.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Input;
 
 namespace ProjectManager.ViewModels.Tasks;
 
@@ -28,7 +27,8 @@ public sealed class TasksViewModel : ObservableObject
         set => SetProperty(ref _selectedTask, value);
     }
 
-    public ICommand NewTaskCommand { get; }
+    public IRelayCommand NewTaskCommand { get; }
+    public IRelayCommand<Guid> UpdateTagCommand { get; }
 
     private readonly Dictionary<Guid, TagViewModel> _tags = new();
 
@@ -55,6 +55,7 @@ public sealed class TasksViewModel : ObservableObject
         NewTaskCommand = new RelayCommand(execute: HandleNewTask);
         AdvanceStatusCommand = new RelayCommand<Guid>(execute: AdvanceStatus, canExecute: id => !_session.IsTaskBlocked(id));
         ShowDetailsCommand = new RelayCommand<Guid>(execute: ShowDetails);
+        UpdateTagCommand = new RelayCommand<Guid>(execute: HandleUpdateTag);
     }
 
     private void Notify(OperationResult result)
@@ -132,6 +133,16 @@ public sealed class TasksViewModel : ObservableObject
         };
         _openTaskWindows[id] = window;
         window.Show();
+    }
+
+    private void HandleUpdateTag(Guid tagId)
+    {
+        if (!_tags.TryGetValue((Guid)tagId, out var vm))
+            return;
+
+        var result = new TagDialogService().PromptTagUpdate((newName, newColor) => _session.UpdateTag(tagId, newName, newColor), vm.Name, vm.Color);
+        if (result is null) return;
+        Notify(result);
     }
 
     public void RefreshAll()

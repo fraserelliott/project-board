@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using ProjectManager.ViewModels.Tasks;
+using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,6 +14,20 @@ public partial class TagsDisplay : UserControl
     public TagsDisplay()
     {
         InitializeComponent();
+    }
+
+    private void EditMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem menuItem)
+            return;
+
+        if (menuItem.DataContext is not TagViewModel tag)
+            return;
+
+        if (UpdateTagCommand?.CanExecute(tag.Id) == true)
+        {
+            UpdateTagCommand.Execute(tag.Id);
+        }
     }
 
     public IEnumerable Tags
@@ -41,4 +56,13 @@ public partial class TagsDisplay : UserControl
 
     public static readonly DependencyProperty RemoveTagCommandProperty = DependencyProperty.Register
         (nameof(RemoveTagCommand), typeof(ICommand), typeof(TagsDisplay), new PropertyMetadata(null));
+
+    public ICommand? UpdateTagCommand
+    {
+        get => (ICommand?)GetValue(UpdateTagCommandProperty);
+        set => SetValue(UpdateTagCommandProperty, value);
+    }
+
+    public static readonly DependencyProperty UpdateTagCommandProperty = DependencyProperty.Register
+        (nameof(UpdateTagCommand), typeof(ICommand), typeof(TagsDisplay), new PropertyMetadata(null));
 }

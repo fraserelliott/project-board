@@ -30,6 +30,7 @@ public sealed class TaskItemViewModel : ObservableObject
     public IRelayCommand<Guid> AdvanceStatusCommand => Owner.AdvanceStatusCommand;
     public ICommand RemoveTagCommand { get; init; }
     public ICommand RemoveDependencyCommand { get; init; }
+    public ICommand UpdateTagCommand => Owner.UpdateTagCommand;
 
     public IReadOnlyList<TagViewModel> Tags =>
     _task.TagIds

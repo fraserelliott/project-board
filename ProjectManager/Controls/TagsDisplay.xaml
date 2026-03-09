@@ -20,7 +20,15 @@
             <DataTemplate>
                 <Border Style="{StaticResource Pill}" Background="{StaticResource BtnPrimaryActive}" BorderBrush="{Binding Brush, TargetNullValue={StaticResource BrushBorderSubtle}}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource PillText}" Text="{Binding Name}" />
+                        <TextBlock Style="{StaticResource PillText}" Text="{Binding Name}">
+                            <TextBlock.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Edit" Click="EditMenuItem_Click">
+                                        
+                                    </MenuItem>
+                                </ContextMenu>
+                            </TextBlock.ContextMenu>
+                        </TextBlock>
                         <Button Background="Transparent" Foreground="{StaticResource BtnDanger}" Content="&#xE711;" Style="{StaticResource PrimaryIconButton}"
                                 Margin="8,0,0,0" FontSize="8" MinHeight="16" Command="{Binding RemoveTagCommand, ElementName=Root}" CommandParameter="{Binding Id}"
                                 Visibility="{Binding ShowRemoveButton, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}"/>
