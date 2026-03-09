@@ -24,6 +24,5 @@
     <SolidColorBrush x:Key="TextMuted" Color="#94A3B8"/>
 
     <!-- Fonts -->
-    <FontFamily x:Key="FontPrimary">Roboto</FontFamily>
-    <FontFamily x:Key="FontSecondary">Montserrat</FontFamily>
+    <FontFamily x:Key="FontPrimary">Segoe UI</FontFamily>
 </ResourceDictionary>

@@ -184,4 +184,15 @@ public sealed class ProjectSession
         MarkDirty();
         return new OperationResult(true, new RefreshTask(taskId));
     }
+
+    public OperationResult UpdateDescriptionOnTask(Guid taskId, string description)
+    {
+        var task = GetTask(taskId);
+        if (task is null)
+            return new OperationResult(false, new RefreshProject(), "Task not found.");
+
+        task.SetDescription(description);
+        MarkDirty();
+        return new OperationResult(true, new RefreshTask(taskId));
+    }
 }

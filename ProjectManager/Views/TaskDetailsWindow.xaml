@@ -89,7 +89,7 @@
             <TextBlock Grid.Row="2" Style="{StaticResource VerticalFieldLabel}" Text="Description"/>
 
             <!-- description -->
-            <TextBox Grid.Row="3" Text="{Binding Description,Mode=OneWay}" IsReadOnly="{Binding IsNotEditing}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Style="{StaticResource FieldTextBox}"/>
+            <controls:MarkdownView Grid.Row="3" Text="{Binding Description}" ViewMode="{Binding MarkdownViewMode}"/>
 
             <!-- dependencies-->
             <Grid Grid.Row="4" Margin="0,8,0,0">

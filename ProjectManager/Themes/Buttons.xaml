@@ -109,6 +109,7 @@
         <Setter Property="Background" Value="{StaticResource BtnPrimaryActive}"/>
         <Setter Property="Foreground" Value="#F1F5F9"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontPrimary}"/>
 
         <Setter Property="Template">
             <Setter.Value>

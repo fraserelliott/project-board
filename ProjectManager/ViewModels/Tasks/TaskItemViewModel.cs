@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectManager.Controls;
 using ProjectManager.Models.Domain;
 using ProjectManager.Services;
 using ProjectManager.Stores;
@@ -36,6 +37,8 @@ public sealed class TaskItemViewModel : ObservableObject
         .Where(tag => tag is not null)
         .Cast<TagViewModel>()
         .ToList();
+
+    public MarkdownViewMode MarkdownViewMode => IsEditing ? MarkdownViewMode.Raw : MarkdownViewMode.Rendered;
 
     public TaskItemViewModel(ProjectSession session, TaskItem task, TasksViewModel owner)
     {
@@ -271,7 +274,18 @@ public sealed class TaskItemViewModel : ObservableObject
     public string? NameErrorMessage => _nameErrorMessage;
     public bool HasNameError => !string.IsNullOrWhiteSpace(_nameErrorMessage);
 
-    public string Description => _task.Description;
+    public string Description
+    {
+        get => _task.Description;
+        set
+        {
+            var result = _session.UpdateDescriptionOnTask(Id, value);
+            if (result.Success)
+            {
+                OnPropertyChanged();
+            }
+        }
+    }
     public int Priority => _task.Priority;
     public string FormPriority
     {
@@ -316,6 +330,7 @@ public sealed class TaskItemViewModel : ObservableObject
             _editing = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsNotEditing));
+            OnPropertyChanged(nameof(MarkdownViewMode));
         }
     }
     public bool IsNotEditing => !IsEditing;

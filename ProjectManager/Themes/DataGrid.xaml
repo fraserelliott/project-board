@@ -5,7 +5,7 @@
     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#F1F5F9"/>
     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#F1F5F9"/>
 
-    <Style x:Key="GridTextStyle" TargetType="TextBlock">
+    <Style x:Key="GridTextStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlock}">
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="Padding" Value="0,0,0,0"/>
@@ -20,6 +20,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="8,0"/>
         <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontFamily" Value="{StaticResource FontPrimary}"/>
 
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
@@ -58,9 +59,9 @@
         <!-- Base look -->
         <Setter Property="Background" Value="{StaticResource DropdownBg}" />
         <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
-        <Setter Property="FontFamily" Value="{StaticResource FontSecondary}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontPrimary}" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="Padding" Value="10,6" />
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="BorderBrush" Value="#2A394F"/>
