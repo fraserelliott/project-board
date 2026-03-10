@@ -1,11 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectManager.Controls;
 using ProjectManager.Models.Domain;
 using ProjectManager.Services;
 using ProjectManager.Stores;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 using TaskStatus = ProjectManager.Models.Domain.TaskStatus;
 
 namespace ProjectManager.ViewModels.Tasks;
@@ -14,32 +14,14 @@ public sealed class TaskItemViewModel : ObservableObject
 {
     private readonly ProjectSession _session;
     private readonly TaskItem _task;
-    private string? _draftName;
-    private string? _nameErrorMessage;
-    private string? _draftPriority;
-    private bool _hasPriorityError = false;
-    private string _tagSearchText = "";
     private string _dependencySearchText = "";
-    private AddTagOption? _selectedTagOption;
+    private string? _draftName;
+    private string? _draftPriority;
+
+    private bool _editing;
     private AddDependencyOption? _selectedDependencyOption;
-    public ObservableCollection<DependencyViewModel> Dependencies { get; init; }
-    public TasksViewModel Owner { get; }
-    public IRelayCommand RestoreNameCommand { get; }
-    public IRelayCommand RestorePriorityCommand { get; }
-    public IRelayCommand ConfirmDeleteTask { get; }
-    public IRelayCommand<Guid> AdvanceStatusCommand => Owner.AdvanceStatusCommand;
-    public ICommand RemoveTagCommand { get; init; }
-    public ICommand RemoveDependencyCommand { get; init; }
-    public ICommand UpdateTagCommand => Owner.UpdateTagCommand;
-
-    public IReadOnlyList<TagViewModel> Tags =>
-    _task.TagIds
-        .Select(id => Owner.GetTag(id))
-        .Where(tag => tag is not null)
-        .Cast<TagViewModel>()
-        .ToList();
-
-    public MarkdownViewMode MarkdownViewMode => IsEditing ? MarkdownViewMode.Raw : MarkdownViewMode.Rendered;
+    private AddTagOption? _selectedTagOption;
+    private string _tagSearchText = "";
 
     public TaskItemViewModel(ProjectSession session, TaskItem task, TasksViewModel owner)
     {
@@ -53,13 +35,194 @@ public sealed class TaskItemViewModel : ObservableObject
         RemoveDependencyCommand = new RelayCommand<Guid>(RemoveDependency);
 
         Dependencies = new ObservableCollection<DependencyViewModel>();
-        foreach (Guid depId in task.DependencyIds)
+        foreach (var depId in task.DependencyIds)
         {
-            TaskItem? dep = _session.GetTask(depId);
+            var dep = _session.GetTask(depId);
             if (dep is not null)
                 Dependencies.Add(new DependencyViewModel(task, dep));
         }
     }
+
+    public ObservableCollection<DependencyViewModel> Dependencies { get; init; }
+    public TasksViewModel Owner { get; }
+    public IRelayCommand RestoreNameCommand { get; }
+    public IRelayCommand RestorePriorityCommand { get; }
+    public IRelayCommand ConfirmDeleteTask { get; }
+    public IRelayCommand<Guid> AdvanceStatusCommand => Owner.AdvanceStatusCommand;
+    public ICommand RemoveTagCommand { get; init; }
+    public ICommand RemoveDependencyCommand { get; init; }
+    public ICommand UpdateTagCommand => Owner.UpdateTagCommand;
+
+    public IReadOnlyList<TagViewModel> Tags =>
+        _task.TagIds
+            .Select(id => Owner.GetTag(id))
+            .Where(tag => tag is not null)
+            .Cast<TagViewModel>()
+            .ToList();
+
+    public MarkdownViewMode MarkdownViewMode => IsEditing ? MarkdownViewMode.Raw : MarkdownViewMode.Rendered;
+
+    public string TagSearchText
+    {
+        get => _tagSearchText;
+        set
+        {
+            if (SetProperty(ref _tagSearchText, value)) OnPropertyChanged(nameof(AvailableTagOptions));
+        }
+    }
+
+    public string DependencySearchText
+    {
+        get => _dependencySearchText;
+        set
+        {
+            if (SetProperty(ref _dependencySearchText, value)) OnPropertyChanged(nameof(AvailableDependencyOptions));
+        }
+    }
+
+    public AddTagOption? SelectedTagOption
+    {
+        get => _selectedTagOption;
+        set
+        {
+            if (SetProperty(ref _selectedTagOption, value) && value is not null) HandleTagOptionSelected(value);
+        }
+    }
+
+    public AddDependencyOption? SelectedDependencyOption
+    {
+        get => _selectedDependencyOption;
+        set
+        {
+            if (SetProperty(ref _selectedDependencyOption, value) && value is not null)
+                HandleDependencyOptionSelected(value);
+        }
+    }
+
+    public IReadOnlyList<AddTagOption> AvailableTagOptions
+    {
+        get
+        {
+            List<AddTagOption> options = new();
+
+            var search = TagSearchText.Trim();
+
+            foreach (var tag in Owner.GetAllTags())
+            {
+                var alreadyOnTask = _task.TagIds.Contains(tag.Id);
+                if (alreadyOnTask)
+                    continue;
+
+                if (search.Length == 0 || tag.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    options.Add(new ExistingTagOption(tag));
+            }
+
+            var exactMatchExists = options
+                .OfType<ExistingTagOption>()
+                .Any(x => string.Equals(x.Tag.Name, search, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(search) && !exactMatchExists) options.Add(new CreateTagOption(search));
+
+            return options;
+        }
+    }
+
+    public bool HasAvailableDependencies => ComputeAvailableDependencies("").Count > 0;
+
+    public IReadOnlyList<AddDependencyOption> AvailableDependencyOptions =>
+        ComputeAvailableDependencies(DependencySearchText);
+
+    public Guid Id => _task.Id;
+
+    public string FormName
+    {
+        get => _draftName == null ? _task.Name : _draftName;
+        set
+        {
+            var result = _session.RenameTask(Id, value);
+            if (result.Success)
+            {
+                _draftName = null;
+                NameErrorMessage = null;
+                Owner.RefreshAll();
+            }
+            else
+            {
+                _draftName = value;
+                NameErrorMessage = result.Message ?? "Rename was unsuccessful";
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(NameErrorMessage));
+                OnPropertyChanged(nameof(HasNameError));
+            }
+        }
+    }
+
+    public string Name => _task.Name;
+    public bool IsRenameError => NameErrorMessage != null;
+    public string? NameErrorMessage { get; private set; }
+
+    public bool HasNameError => !string.IsNullOrWhiteSpace(NameErrorMessage);
+
+    public string Description
+    {
+        get => _task.Description;
+        set
+        {
+            var result = _session.UpdateDescriptionOnTask(Id, value);
+            if (result.Success) OnPropertyChanged();
+        }
+    }
+
+    public int Priority => _task.Priority;
+
+    public string FormPriority
+    {
+        get => _draftPriority == null ? _task.Priority.ToString() : _draftPriority;
+        set
+        {
+            if (int.TryParse(value, out var priority))
+            {
+                _session.UpdatePriorityOnTask(Id, priority);
+                _draftPriority = null;
+                HasPriorityError = false;
+            }
+            else
+            {
+                _draftPriority = value;
+                HasPriorityError = true;
+            }
+
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(Priority));
+            OnPropertyChanged(nameof(HasPriorityError));
+        }
+    }
+
+    public bool HasPriorityError { get; private set; }
+
+    public TaskStatus Status => _task.Status;
+
+    public bool IsBlocked => Status != TaskStatus.Completed && _session.IsTaskBlocked(Id);
+    public bool IsStale => Status == TaskStatus.Completed && _session.IsTaskStale(Id);
+
+    public string ButtonText =>
+        Status == TaskStatus.NotStarted ? "Start" :
+        Status == TaskStatus.Started ? "Complete" : "Reopen";
+
+    public bool IsEditing
+    {
+        get => _editing;
+        set
+        {
+            if (_editing == value) return;
+            _editing = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsNotEditing));
+            OnPropertyChanged(nameof(MarkdownViewMode));
+        }
+    }
+
+    public bool IsNotEditing => !IsEditing;
 
     private void RemoveTag(Guid tagId)
     {
@@ -83,108 +246,21 @@ public sealed class TaskItemViewModel : ObservableObject
         }
     }
 
-    public string TagSearchText
-    {
-        get => _tagSearchText;
-        set
-        {
-            if (SetProperty(ref _tagSearchText, value))
-            {
-                OnPropertyChanged(nameof(AvailableTagOptions));
-            }
-        }
-    }
-
-    public string DependencySearchText
-    {
-        get => _dependencySearchText;
-        set
-        {
-            if (SetProperty(ref _dependencySearchText, value))
-            {
-                OnPropertyChanged(nameof(AvailableDependencyOptions));
-            }
-        }
-    }
-
-    public AddTagOption? SelectedTagOption
-    {
-        get => _selectedTagOption;
-        set
-        {
-            if (SetProperty(ref _selectedTagOption, value) && value is not null)
-            {
-                HandleTagOptionSelected(value);
-            }
-        }
-    }
-
-    public AddDependencyOption? SelectedDependencyOption
-    {
-        get => _selectedDependencyOption;
-        set
-        {
-            if (SetProperty(ref _selectedDependencyOption, value) && value is not null)
-            {
-                HandleDependencyOptionSelected(value);
-            }
-        }
-    }
-
-    public IReadOnlyList<AddTagOption> AvailableTagOptions
-    {
-        get
-        {
-            List<AddTagOption> options = new();
-
-            string search = TagSearchText.Trim();
-
-            foreach (TagViewModel tag in Owner.GetAllTags())
-            {
-                bool alreadyOnTask = _task.TagIds.Contains(tag.Id);
-                if (alreadyOnTask)
-                    continue;
-
-                if (search.Length == 0 || tag.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
-                {
-                    options.Add(new ExistingTagOption(tag));
-                }
-            }
-
-            bool exactMatchExists = options
-                .OfType<ExistingTagOption>()
-                .Any(x => string.Equals(x.Tag.Name, search, StringComparison.OrdinalIgnoreCase));
-
-            if (!string.IsNullOrWhiteSpace(search) && !exactMatchExists)
-            {
-                options.Add(new CreateTagOption(search));
-            }
-
-            return options;
-        }
-    }
-
-    public bool HasAvailableDependencies => ComputeAvailableDependencies("").Count > 0;
-
-    public IReadOnlyList<AddDependencyOption> AvailableDependencyOptions => ComputeAvailableDependencies(DependencySearchText);
-
     private IReadOnlyList<AddDependencyOption> ComputeAvailableDependencies(string searchTerm)
     {
         List<AddDependencyOption> options = new();
 
-        string search = searchTerm.Trim();
+        var search = searchTerm.Trim();
 
-        foreach (TaskItemViewModel task in Owner.Tasks)
+        foreach (var task in Owner.Tasks)
         {
-            bool alreadyOnTask = _task.DependencyIds.Contains(task.Id);
+            var alreadyOnTask = _task.DependencyIds.Contains(task.Id);
             if (alreadyOnTask || task.Id == Id)
                 continue;
 
             if (!_session.WouldCreateCycle(Id, task.Id))
-            {
                 if (search.Length == 0 || task.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
                     options.Add(new AddDependencyOption(task));
-            }
         }
 
         return options;
@@ -218,10 +294,9 @@ public sealed class TaskItemViewModel : ObservableObject
 
     private void OpenCreateTagDialog(string name)
     {
-        var result = new TagDialogService().PromptNewTag((name, color) =>
-        {
-            return _session.AddTagToProject(name, color);
-        }, name);
+        var result =
+            new TagDialogService().PromptNewTag((name, color) => { return _session.AddTagToProject(name, color); },
+                name);
 
         var tagId = Owner.TryAddTag(result);
         if (tagId == null) return;
@@ -231,10 +306,7 @@ public sealed class TaskItemViewModel : ObservableObject
     private void AddTag(Guid tagId)
     {
         var result = _session.AddTagToTask(Id, tagId);
-        if (result.Success)
-        {
-            OnPropertyChanged(nameof(Tags));
-        }
+        if (result.Success) OnPropertyChanged(nameof(Tags));
     }
 
     private void ResetTagPicker()
@@ -245,96 +317,6 @@ public sealed class TaskItemViewModel : ObservableObject
         OnPropertyChanged(nameof(TagSearchText));
         OnPropertyChanged(nameof(AvailableTagOptions));
     }
-
-    public Guid Id => _task.Id;
-    public string FormName
-    {
-        get => _draftName == null ? _task.Name : _draftName;
-        set
-        {
-            var result = _session.RenameTask(Id, value);
-            if (result.Success)
-            {
-                _draftName = null;
-                _nameErrorMessage = null;
-                Owner.RefreshAll();
-            }
-            else
-            {
-                _draftName = value;
-                _nameErrorMessage = result.Message ?? "Rename was unsuccessful";
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(NameErrorMessage));
-                OnPropertyChanged(nameof(HasNameError));
-            }
-        }
-    }
-
-    public string Name => _task.Name;
-    public bool IsRenameError => _nameErrorMessage != null;
-    public string? NameErrorMessage => _nameErrorMessage;
-    public bool HasNameError => !string.IsNullOrWhiteSpace(_nameErrorMessage);
-
-    public string Description
-    {
-        get => _task.Description;
-        set
-        {
-            var result = _session.UpdateDescriptionOnTask(Id, value);
-            if (result.Success)
-            {
-                OnPropertyChanged();
-            }
-        }
-    }
-    public int Priority => _task.Priority;
-    public string FormPriority
-    {
-        get => _draftPriority == null ? _task.Priority.ToString() : _draftPriority;
-        set
-        {
-            if (int.TryParse(value, out var priority))
-            {
-                _session.UpdatePriorityOnTask(Id, priority);
-                _draftPriority = null;
-                _hasPriorityError = false;
-            }
-            else
-            {
-                _draftPriority = value;
-                _hasPriorityError = true;
-            }
-
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(Priority));
-            OnPropertyChanged(nameof(HasPriorityError));
-        }
-    }
-    public bool HasPriorityError => _hasPriorityError;
-
-    public TaskStatus Status => _task.Status;
-
-    public bool IsBlocked => Status != TaskStatus.Completed && _session.IsTaskBlocked(Id);
-    public bool IsStale => Status == TaskStatus.Completed && _session.IsTaskStale(Id);
-
-    public string ButtonText =>
-        Status == TaskStatus.NotStarted ? "Start" :
-        Status == TaskStatus.Started ? "Complete" : "Reopen";
-
-    private bool _editing;
-    public bool IsEditing
-    {
-        get => _editing;
-        set
-        {
-            if (_editing == value) return;
-            _editing = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(IsNotEditing));
-            OnPropertyChanged(nameof(MarkdownViewMode));
-        }
-    }
-    public bool IsNotEditing => !IsEditing;
 
     public void Refresh()
     {
@@ -355,10 +337,7 @@ public sealed class TaskItemViewModel : ObservableObject
         OnPropertyChanged(nameof(HasAvailableDependencies));
         OnPropertyChanged(nameof(Dependencies));
 
-        foreach (var dependency in Dependencies)
-        {
-            dependency.Refresh();
-        }
+        foreach (var dependency in Dependencies) dependency.Refresh();
     }
 
     public void Reset()
@@ -368,20 +347,20 @@ public sealed class TaskItemViewModel : ObservableObject
         IsEditing = false;
     }
 
-    public void RestoreName()
+    private void RestoreName()
     {
         _draftName = null;
-        _nameErrorMessage = null;
+        NameErrorMessage = null;
 
         OnPropertyChanged(nameof(FormName));
         OnPropertyChanged(nameof(NameErrorMessage));
         OnPropertyChanged(nameof(HasNameError));
     }
 
-    public void RestorePriority()
+    private void RestorePriority()
     {
         _draftPriority = null;
-        _hasPriorityError = false;
+        HasPriorityError = false;
 
         OnPropertyChanged(nameof(FormPriority));
         OnPropertyChanged(nameof(HasPriorityError));
@@ -390,9 +369,7 @@ public sealed class TaskItemViewModel : ObservableObject
     private void ConfirmDelete()
     {
         if (new ConfirmDialogService()
-        .PromptConfirm("Are you sure you want to delete this task?", "Yes"))
-        {
+            .PromptConfirm("Are you sure you want to delete this task?", "Yes"))
             Owner.DeleteTask(Id);
-        }
     }
 }

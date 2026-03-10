@@ -105,7 +105,7 @@
                 <TextBlock Grid.Column="2" Style="{StaticResource HorizontalFieldLabel}" Text="Add Dependency"/>
                 <ComboBox Grid.Column="3" Style="{StaticResource FieldComboBox}" ItemContainerStyle="{StaticResource FieldComboBoxItem}" Width="180" IsEditable="True" IsTextSearchEnabled="False"
                           IsEnabled="{Binding IsEditing}" StaysOpenOnEdit="True" ItemsSource="{Binding AvailableDependencyOptions}" SelectedItem="{Binding SelectedDependencyOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          Text="{Binding DependencySearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="DisplayText" PreviewTextInput="TagComboBox_PreviewTextInput"
+                          Text="{Binding DependencySearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="DisplayText" PreviewTextInput="TagComboBox_PreviewTextInput"
                           Visibility="{Binding HasAvailableDependencies, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <TextBlock Grid.Column="3" Visibility="{Binding HasAvailableDependencies, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <Run Text="None Available"/>

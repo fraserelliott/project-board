@@ -41,7 +41,7 @@
 
         public void SetDescription(string description)
         {
-            Description = description?.Trim() ?? "";
+            Description = description ?? "";
         }
 
         public void SetPriority(int priority)
