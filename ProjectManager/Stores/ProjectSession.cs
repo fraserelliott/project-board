@@ -95,6 +95,16 @@ public sealed class ProjectSession
         return new OperationResult(true, new RefreshProject());
     }
 
+    public OperationResult RemoveNote(Guid noteId)
+    {
+        if (!Project.HasNoteWithId(noteId))
+            return new OperationResult(false, new RefreshNone(), "Note not found.");
+
+        Project.RemoveNote(noteId);
+        MarkDirty();
+        return new OperationResult(true, new RefreshProject());
+    }
+
     public OperationResult RenameTask(Guid taskId, string newName)
     {
         newName = (newName ?? "").Trim();

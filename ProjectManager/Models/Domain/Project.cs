@@ -375,4 +375,9 @@ public sealed class Project
                 break;
         }
     }
+
+    public bool HasNoteWithId(Guid noteId)
+    {
+        return _notesById.ContainsKey(noteId);
+    }
 }

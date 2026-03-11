@@ -23,11 +23,13 @@ public sealed class NotesViewModel : ObservableObject
 
         CloseNoteCommand = new RelayCommand(CloseNote);
         NewNoteCommand = new RelayCommand(HandleNewNote);
+        DeleteNoteCommand = new RelayCommand<Guid>(HandleDeleteNote);
     }
 
     public ReadOnlyObservableCollection<NoteViewModel> Notes { get; }
     public IRelayCommand CloseNoteCommand { get; init; }
     public IRelayCommand NewNoteCommand { get; init; }
+    public IRelayCommand<Guid> DeleteNoteCommand { get; init; }
 
     public NoteViewModel? SelectedNote
     {
@@ -103,5 +105,19 @@ public sealed class NotesViewModel : ObservableObject
             var vm = new NoteViewModel(this, note, _session);
             _notes.Add(vm);
         }
+    }
+
+    private void HandleDeleteNote(Guid noteId)
+    {
+        if (!new ConfirmDialogService().PromptConfirm("Are you sure you want to delete this note?", "Yes")) return;
+
+        var result = _session.RemoveNote(noteId);
+        if (result is not { Success: true }) return;
+
+        var note = _notes.FirstOrDefault(n => n.Id == noteId);
+        if (note != null)
+            _notes.Remove(note);
+        if (SelectedNote == note)
+            SelectedNote = null;
     }
 }

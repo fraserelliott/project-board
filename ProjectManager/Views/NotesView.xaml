@@ -38,7 +38,8 @@
                 <ToggleButton IsChecked="{Binding IsEditing, Mode=TwoWay}" Style="{StaticResource EditToggleButton}" />
                 <Button Content="Close" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
                         Command="{Binding CloseNoteCommand}" />
-                <Button Content="Delete" Style="{StaticResource DangerButton}" Margin="8,0,0,0" />
+                <Button Content="Delete" Style="{StaticResource DangerButton}" Margin="8,0,0,0"
+                        Command="{Binding DeleteNoteCommand}" CommandParameter="{Binding SelectedNote.Id}" />
             </StackPanel>
 
             <controls:MarkdownView Grid.Row="1" Text="{Binding SelectedNote.Text, Mode=TwoWay}"
