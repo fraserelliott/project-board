@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectManager.Controls;
@@ -12,6 +14,8 @@ public sealed class NotesViewModel : ObservableObject
     private readonly ObservableCollection<NoteViewModel> _notes = new();
     private readonly ProjectSession _session;
     private bool _isEditing;
+
+    private string _searchText = "";
     private NoteViewModel? _selectedNote;
 
     public NotesViewModel(ProjectSession session)
@@ -21,15 +25,30 @@ public sealed class NotesViewModel : ObservableObject
         Notes = new ReadOnlyObservableCollection<NoteViewModel>(_notes);
         foreach (var note in _session.Project.Notes) _notes.Add(new NoteViewModel(this, note, _session));
 
+        NotesView = CollectionViewSource.GetDefaultView(_notes);
+        NotesView.Filter = FilterNotes;
+
         CloseNoteCommand = new RelayCommand(CloseNote);
         NewNoteCommand = new RelayCommand(HandleNewNote);
         DeleteNoteCommand = new RelayCommand<Guid>(HandleDeleteNote);
     }
 
     public ReadOnlyObservableCollection<NoteViewModel> Notes { get; }
+    public ICollectionView NotesView { get; }
     public IRelayCommand CloseNoteCommand { get; init; }
     public IRelayCommand NewNoteCommand { get; init; }
     public IRelayCommand<Guid> DeleteNoteCommand { get; init; }
+    public IRelayCommand ClearSearchCommand => new RelayCommand(() => SearchText = string.Empty);
+
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (SetProperty(ref _searchText, value))
+                NotesView.Refresh();
+        }
+    }
 
     public NoteViewModel? SelectedNote
     {
@@ -86,6 +105,18 @@ public sealed class NotesViewModel : ObservableObject
           - *italic*
           - `inline code`
           """;
+
+    private bool FilterNotes(object obj)
+    {
+        if (obj is not NoteViewModel note)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(SearchText))
+            return true;
+
+        return note.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+               || note.Text.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
+    }
 
     private void CloseNote()
     {
