@@ -75,6 +75,16 @@ public sealed class ProjectSession
         return new OperationResult(true, new RefreshTask(task.Id));
     }
 
+    public OperationResult AddNote(string name)
+    {
+        if (Project.HasNoteWithName(name))
+            return new OperationResult(false, new RefreshNone(), "A note with this name already exists.");
+
+        var note = Project.AddNote(name);
+        MarkDirty();
+        return new OperationResult(true, new RefreshNote(note.Id));
+    }
+
     public OperationResult RemoveTask(Guid taskId)
     {
         if (!Project.HasTaskWithId(taskId))

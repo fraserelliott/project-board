@@ -88,7 +88,7 @@ public sealed class TasksViewModel : ObservableObject
     private void HandleNewTask()
     {
         var result =
-            new PromptService().PromptForString("Add task", "Task name", "Add", name => _session.AddTask(name));
+            new PromptService().PromptForString("Add Task", "Task name", "Add", name => _session.AddTask(name));
 
         if (result is not { Success: true })
             return;
