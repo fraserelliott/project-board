@@ -90,7 +90,7 @@
 
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ItemBorder" Property="Background"
-                                    Value="{StaticResource BtnPrimaryActive}" />
+                                    Value="{StaticResource BtnPrimaryHover}" />
                             <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
                         </Trigger>
                     </ControlTemplate.Triggers>

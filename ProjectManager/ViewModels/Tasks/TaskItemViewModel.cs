@@ -12,9 +12,11 @@ namespace ProjectManager.ViewModels.Tasks;
 
 public sealed class TaskItemViewModel : ObservableObject
 {
+    private readonly ObservableCollection<AddDependencyOption> _availableDependencies = new();
     private readonly ObservableCollection<AddTagOption> _availableTagOptions = new();
     private readonly ProjectSession _session;
     private readonly TaskItem _task;
+    private string _dependencySearchText = string.Empty;
     private string? _draftName;
     private string? _draftPriority;
     private bool _editing;
@@ -31,6 +33,7 @@ public sealed class TaskItemViewModel : ObservableObject
         RemoveTagCommand = new RelayCommand<Guid>(RemoveTag);
         RemoveDependencyCommand = new RelayCommand<Guid>(RemoveDependency);
         AvailableTagOptions = new ReadOnlyObservableCollection<AddTagOption>(_availableTagOptions);
+        AvailableDependencies = new ReadOnlyObservableCollection<AddDependencyOption>(_availableDependencies);
 
         Dependencies = new ObservableCollection<DependencyViewModel>();
         foreach (var depId in task.DependencyIds)
@@ -41,6 +44,7 @@ public sealed class TaskItemViewModel : ObservableObject
         }
 
         RefreshAvailableTags();
+        RefreshAvailableDependencies();
     }
 
     public string TagSearchText
@@ -57,8 +61,23 @@ public sealed class TaskItemViewModel : ObservableObject
         }
     }
 
-    public ReadOnlyObservableCollection<AddTagOption> AvailableTagOptions { get; }
+    public string DependencySearchText
+    {
+        get => _dependencySearchText;
+        set
+        {
+            if (_dependencySearchText == value)
+                return;
 
+            _dependencySearchText = value;
+            OnPropertyChanged();
+            RefreshAvailableDependencies();
+        }
+    }
+
+    public ReadOnlyObservableCollection<AddTagOption> AvailableTagOptions { get; }
+    public ReadOnlyObservableCollection<AddDependencyOption> AvailableDependencies { get; }
+    public bool HasAvailableDependencies => AvailableDependencies.Count > 0;
     public ObservableCollection<DependencyViewModel> Dependencies { get; init; }
     public TasksViewModel Owner { get; }
     public IRelayCommand RestoreNameCommand { get; }
@@ -172,6 +191,8 @@ public sealed class TaskItemViewModel : ObservableObject
 
     public Func<object?, bool> TagOptionChosenHandler => HandleTagOptionChosen;
 
+    public Func<object?, bool> DependencyOptionChosenHandler => HandleDependencyOptionChosen;
+
     private bool HandleTagOptionChosen(object? obj)
     {
         if (obj is not AddTagOption option) return false;
@@ -193,6 +214,35 @@ public sealed class TaskItemViewModel : ObservableObject
 
             default:
                 return false;
+        }
+    }
+
+    private bool HandleDependencyOptionChosen(object? obj)
+    {
+        if (obj is not AddDependencyOption option) return false;
+        var result = _session.AddDependencyToTask(Id, option.Task.Id);
+        var dep = _session.GetTask(option.Task.Id);
+        if (dep is null) return false;
+        Dependencies.Add(new DependencyViewModel(_task, dep));
+        Owner.RefreshAll();
+        return true;
+    }
+
+    private void RefreshAvailableDependencies()
+    {
+        _availableDependencies.Clear();
+
+        var search = DependencySearchText.Trim();
+
+        foreach (var task in Owner.Tasks)
+        {
+            var alreadyOnTask = _task.DependencyIds.Contains(task.Id);
+            if (alreadyOnTask || task.Id == Id)
+                continue;
+
+            if (!_session.WouldCreateCycle(Id, task.Id))
+                if (search.Length == 0 || task.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    _availableDependencies.Add(new AddDependencyOption(task));
         }
     }
 
@@ -223,6 +273,7 @@ public sealed class TaskItemViewModel : ObservableObject
     {
         var result = _session.RemoveTagFromTask(Id, tagId);
         if (result.Success) OnPropertyChanged(nameof(Tags));
+        RefreshAvailableTags();
     }
 
     private void RemoveDependency(Guid dependencyId)
@@ -235,26 +286,6 @@ public sealed class TaskItemViewModel : ObservableObject
                 Dependencies.Remove(vm);
             Owner.RefreshAll();
         }
-    }
-
-    private IReadOnlyList<AddDependencyOption> ComputeAvailableDependencies(string searchTerm)
-    {
-        List<AddDependencyOption> options = new();
-
-        var search = searchTerm.Trim();
-
-        foreach (var task in Owner.Tasks)
-        {
-            var alreadyOnTask = _task.DependencyIds.Contains(task.Id);
-            if (alreadyOnTask || task.Id == Id)
-                continue;
-
-            if (!_session.WouldCreateCycle(Id, task.Id))
-                if (search.Length == 0 || task.Name.Contains(search, StringComparison.OrdinalIgnoreCase))
-                    options.Add(new AddDependencyOption(task));
-        }
-
-        return options;
     }
 
     private void AddTag(Guid tagId)
@@ -280,6 +311,7 @@ public sealed class TaskItemViewModel : ObservableObject
         OnPropertyChanged(nameof(Status));
         OnPropertyChanged(nameof(Dependencies));
         RefreshAvailableTags();
+        RefreshAvailableDependencies();
 
         foreach (var dependency in Dependencies) dependency.Refresh();
     }

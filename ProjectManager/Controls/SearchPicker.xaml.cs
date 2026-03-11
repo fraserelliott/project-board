@@ -136,6 +136,11 @@ public partial class SearchPicker : UserControl
         if (SelectedItem == null)
             return;
 
+        InvokeChoice();
+    }
+
+    private void InvokeChoice()
+    {
         var result = ItemChosenHandler?.Invoke(SelectedItem);
         if (result == true)
             Reset();
@@ -186,6 +191,11 @@ public partial class SearchPicker : UserControl
             default:
             {
                 IsPopupOpen = true;
+                break;
+            }
+            case Key.Return:
+            {
+                InvokeChoice();
                 break;
             }
         }
