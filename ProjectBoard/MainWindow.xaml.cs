@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using ProjectBoard.Models.Domain;
@@ -26,7 +27,9 @@ public partial class MainWindow : Window
     private void LoadTestButton_Click(object sender, RoutedEventArgs e)
     {
         var session = LoadSession("test.json");
-        LaunchProject(session);
+
+        if (session is not null)
+            LaunchProject(session);
     }
 
     private void LaunchProject(ProjectSession session)
@@ -68,14 +71,22 @@ public partial class MainWindow : Window
         return new ProjectSession(project, new FileProjectPersistence(filePath, new JsonProjectSerializer()));
     }
 
-    private ProjectSession LoadSession(string filePath)
+    private ProjectSession? LoadSession(string filePath)
     {
-        var serializer = new JsonProjectSerializer();
-        var json = File.ReadAllText(filePath);
-        var project = serializer.Deserialize(json);
+        try
+        {
+            var serializer = new JsonProjectSerializer();
+            var json = File.ReadAllText(filePath);
+            var project = serializer.Deserialize(json);
 
-        return new ProjectSession(
-            project,
-            new FileProjectPersistence(filePath, serializer));
+            return new ProjectSession(
+                project,
+                new FileProjectPersistence(filePath, serializer));
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to load project: {ex}");
+            return null;
+        }
     }
 }
