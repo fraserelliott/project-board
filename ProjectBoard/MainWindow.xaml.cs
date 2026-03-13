@@ -15,6 +15,41 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        var vm = new StartupWindowViewModel();
+        vm.RequestClose += OnViewModelRequestClose;
+        DataContext = vm;
+    }
+
+    private void OnViewModelRequestClose()
+    {
+        if (DataContext is not StartupWindowViewModel vm)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(vm.NewProjectPath) &&
+            !string.IsNullOrWhiteSpace(vm.NewProjectName))
+            try
+            {
+                var project = new Project(vm.NewProjectName);
+                var serializer = new JsonProjectSerializer();
+                var projectSession = new ProjectSession(
+                    project,
+                    new FileProjectPersistence(vm.NewProjectPath, serializer));
+
+                projectSession.SaveNow();
+                LaunchProject(projectSession);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to create project:{Environment.NewLine}{ex.Message}",
+                    "Project Creation Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                return;
+            }
+
+        Close();
     }
 
     private void ShowDemoButton_Click(object sender, RoutedEventArgs e)

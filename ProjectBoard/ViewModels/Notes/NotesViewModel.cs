@@ -130,7 +130,7 @@ public sealed class NotesViewModel : ObservableObject
 
         if (result is not { Success: true }) return;
 
-        if (result.Refresh is RefreshNote r)
+        if (result.ResultAction is RefreshNote r)
         {
             var note = _session.GetNote(r.NoteId);
             var vm = new NoteViewModel(this, note, _session);

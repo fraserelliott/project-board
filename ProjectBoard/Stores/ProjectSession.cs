@@ -4,21 +4,23 @@ using ProjectBoard.Services;
 
 namespace ProjectBoard.Stores;
 
-public abstract record RefreshScope;
+public abstract record ResultAction;
 
-public record RefreshNone : RefreshScope;
+public record RefreshNone : ResultAction;
 
-public record RefreshProject : RefreshScope;
+public record RefreshProject : ResultAction;
 
-public record RefreshTask(Guid TaskId) : RefreshScope;
+public record RefreshTask(Guid TaskId) : ResultAction;
 
-public record RefreshTag(Guid TagId) : RefreshScope;
+public record RefreshTag(Guid TagId) : ResultAction;
 
-public record RefreshNote(Guid NoteId) : RefreshScope;
+public record RefreshNote(Guid NoteId) : ResultAction;
+
+public record StringResult(string Value) : ResultAction;
 
 public record OperationResult(
     bool Success,
-    RefreshScope Refresh,
+    ResultAction ResultAction,
     string? Message = null
 );
 
@@ -37,6 +39,14 @@ public sealed class ProjectSession
 
     public void Save()
     {
+        // TODO: debouncer
+        _projectPersistence.Save(Project);
+        IsDirty = false;
+    }
+
+    public void SaveNow()
+    {
+        // TODO: debouncer
         _projectPersistence.Save(Project);
         IsDirty = false;
     }

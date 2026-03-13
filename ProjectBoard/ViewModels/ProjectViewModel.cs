@@ -25,6 +25,7 @@ public sealed class ProjectViewModel : ObservableObject
         CurrentViewModel = Tasks;
     }
 
+    public string Title => $"Project Board - {Session.Project.Name}";
     public ProjectSession Session { get; }
     public TasksViewModel Tasks { get; }
     public NotesViewModel Notes { get; }

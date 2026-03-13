@@ -41,7 +41,8 @@
 
             <Border Grid.Column="1" Style="{StaticResource PanelBorder}">
                 <StackPanel>
-                    <Button Style="{StaticResource PrimaryButton}" Margin="0,0,0,8">
+                    <Button Style="{StaticResource PrimaryButton}" Margin="0,0,0,8"
+                            Command="{Binding NewProjectCommand}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="16" Text="&#xE8F4;" />
                             <TextBlock Text=" New Project" />

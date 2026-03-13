@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:vmtasks="clr-namespace:ProjectBoard.ViewModels.Tasks"
         xmlns:vmnotes="clr-namespace:ProjectBoard.ViewModels.Notes" xmlns:views="clr-namespace:ProjectBoard.Views"
-        mc:Ignorable="d" Title="Project Board" Height="600" Width="1000" Background="{StaticResource AppBackground}">
+        mc:Ignorable="d" Title="{Binding Title}" Height="600" Width="1000" Background="{StaticResource AppBackground}">
     <Window.Resources>
 
         <DataTemplate DataType="{x:Type vmtasks:TasksViewModel}">

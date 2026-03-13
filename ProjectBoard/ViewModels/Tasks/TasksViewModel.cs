@@ -46,8 +46,8 @@ public sealed class TasksViewModel : ObservableObject
         UpdateTagCommand = new RelayCommand<Guid>(HandleUpdateTag);
     }
 
-    public IRelayCommand<Guid> AdvanceStatusCommand { get; }
-    public IRelayCommand<Guid> ShowDetailsCommand { get; }
+    public RelayCommand<Guid> AdvanceStatusCommand { get; }
+    public RelayCommand<Guid> ShowDetailsCommand { get; }
 
     public ObservableCollection<TaskItemViewModel> Tasks { get; }
     public ReadOnlyObservableCollection<ExistingTagOption> AllTagOptions { get; }
@@ -58,15 +58,15 @@ public sealed class TasksViewModel : ObservableObject
         set => SetProperty(ref _selectedTask, value);
     }
 
-    public IRelayCommand NewTaskCommand { get; }
-    public IRelayCommand<Guid> UpdateTagCommand { get; }
+    public RelayCommand NewTaskCommand { get; }
+    public RelayCommand<Guid> UpdateTagCommand { get; }
 
     private void Notify(OperationResult result)
     {
         if (!result.Success)
             return;
 
-        switch (result.Refresh)
+        switch (result.ResultAction)
         {
             case RefreshNone:
                 break;
@@ -93,7 +93,7 @@ public sealed class TasksViewModel : ObservableObject
         if (result is not { Success: true })
             return;
 
-        if (result.Refresh is RefreshTask r)
+        if (result.ResultAction is RefreshTask r)
         {
             var task = _session.GetTask(r.TaskId);
             var vm = new TaskItemViewModel(_session, task, this);
@@ -186,7 +186,7 @@ public sealed class TasksViewModel : ObservableObject
 
     public Guid? TryAddTag(OperationResult? result)
     {
-        if (result is not null && result.Success && result.Refresh is RefreshTag refreshTag)
+        if (result is not null && result.Success && result.ResultAction is RefreshTag refreshTag)
         {
             var tag = _session.GetTag(refreshTag.TagId);
             if (tag is null) return null;
