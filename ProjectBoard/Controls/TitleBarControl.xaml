@@ -15,7 +15,10 @@
             <Border Grid.Column="0" Background="Transparent" MouseLeftButtonDown="DragArea_MouseLeftButtonDown">
                 <DockPanel LastChildFill="True" Margin="10,0,0,0">
                     <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=Title}"
-                               VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" Foreground="White" />
+                               VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}"
+                               Visibility="{Binding RenderTitle, RelativeSource={RelativeSource AncestorType=UserControl},
+                               Converter={StaticResource BoolToVisibilityConverter}}" />
                 </DockPanel>
             </Border>
 

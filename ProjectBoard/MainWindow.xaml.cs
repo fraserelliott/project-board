@@ -8,7 +8,7 @@ using ProjectBoard.Models.Domain;
 using ProjectBoard.Services;
 using ProjectBoard.Stores;
 using ProjectBoard.ViewModels;
-using ProjectBoard.Views;
+using ProjectBoard.Windows;
 
 namespace ProjectBoard;
 

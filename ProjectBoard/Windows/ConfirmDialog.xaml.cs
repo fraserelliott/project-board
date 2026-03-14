@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace ProjectBoard.Views;
+namespace ProjectBoard.Windows;
 
 /// <summary>
 ///     Interaction logic for ConfirmDialog.xaml

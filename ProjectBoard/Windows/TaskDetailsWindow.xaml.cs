@@ -1,13 +1,12 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace ProjectBoard.Views;
+namespace ProjectBoard.Windows;
 
 /// <summary>
 ///     Interaction logic for TaskDetailsWindow.xaml
 /// </summary>
-public partial class TaskDetailsWindow : Window
+public partial class TaskDetailsWindow : AppWindow
 {
     public TaskDetailsWindow()
     {

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace ProjectBoard.Views;
+namespace ProjectBoard.Windows;
 
 /// <summary>
 ///     Interaction logic for TasksView.xaml

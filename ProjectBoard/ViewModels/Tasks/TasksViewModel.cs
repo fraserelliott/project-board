@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBoard.Services;
 using ProjectBoard.Stores;
-using ProjectBoard.Views;
+using ProjectBoard.Windows;
 
 namespace ProjectBoard.ViewModels.Tasks;
 

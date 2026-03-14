@@ -4,9 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using ProjectBoard.ViewModels;
 
-namespace ProjectBoard.Views;
+namespace ProjectBoard.Windows;
 
-public partial class ProjectWindow : Window
+public partial class ProjectWindow : AppWindow
 {
     public static readonly RoutedCommand CloseProjectCommand = new();
     public static readonly RoutedCommand CloseWindowCommand = new();

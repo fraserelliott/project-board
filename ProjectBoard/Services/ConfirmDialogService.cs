@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using ProjectBoard.ViewModels.Dialogs;
-using ProjectBoard.Views;
+using ProjectBoard.Windows;
 
 namespace ProjectBoard.Services;
 

@@ -1,0 +1,50 @@
+﻿<windows:AppWindow x:Class="ProjectBoard.Windows.PromptForStringDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:windows="clr-namespace:ProjectBoard.Windows"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:controls="clr-namespace:ProjectBoard.Controls" Title="{Binding Title}"
+                   SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+                   ShowInTaskbar="False" Background="{StaticResource AppBackground}"
+                   Foreground="{StaticResource TextPrimary}">
+
+    <Border Background="{StaticResource AppBackground}" BorderBrush="{StaticResource BrushBorderSubtle}"
+            BorderThickness="1">
+        <DockPanel>
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,20" Height="40">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Image Grid.Column="0" Source="../Assets/Images/Logo.png" Margin="10,10,30,10" />
+
+                <controls:TitleBarControl Grid.Column="1" ShowMaximize="False" ShowMinimize="False" />
+            </Grid>
+
+            <Grid Margin="16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{Binding Label}" Margin="0,0,0,6" />
+
+                <TextBox Grid.Row="1" MinWidth="320" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                         x:Name="ValueTextBox" Margin="0,0,0,12" Style="{StaticResource FieldTextBox}" />
+
+                <TextBlock Grid.Row="2" Text="{Binding ErrorMessage}" Foreground="{StaticResource BtnDanger}"
+                           TextWrapping="Wrap" Margin="0,0,0,12" />
+
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancel" MinWidth="90" Margin="0,0,8,0" IsCancel="True"
+                            Style="{StaticResource PrimaryButton}" />
+                    <Button Content="{Binding SubmitText}" MinWidth="90" IsDefault="True"
+                            IsEnabled="{Binding CanSubmit}" Command="{Binding SubmitCommand}"
+                            Style="{StaticResource PrimaryButton}" />
+                </StackPanel>
+            </Grid>
+        </DockPanel>
+    </Border>
+</windows:AppWindow>

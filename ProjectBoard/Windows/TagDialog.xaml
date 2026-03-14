@@ -1,7 +1,9 @@
-﻿<Window x:Class="ProjectBoard.Views.TagDialog" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="{Binding Title}" SizeToContent="WidthAndHeight"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize" WindowStyle="ToolWindow" ShowInTaskbar="False"
-        Icon="{x:Null}" Background="{StaticResource AppBackground}" Foreground="{StaticResource TextPrimary}">
+﻿<windows:AppWindow x:Class="ProjectBoard.Windows.TagDialog"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="{Binding Title}"
+                   SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+                   ShowInTaskbar="False" xmlns:windows="clr-namespace:ProjectBoard.Windows"
+                   Background="{StaticResource AppBackground}" Foreground="{StaticResource TextPrimary}">
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -103,4 +105,4 @@
                     Command="{Binding SubmitCommand}" Style="{StaticResource PrimaryButton}" />
         </StackPanel>
     </Grid>
-</Window>
+</windows:AppWindow>

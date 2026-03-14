@@ -1,11 +1,9 @@
-﻿using System.Windows;
-
-namespace ProjectBoard.Views;
+﻿namespace ProjectBoard.Windows;
 
 /// <summary>
 ///     Interaction logic for NewTaskDialog.xaml
 /// </summary>
-public partial class PromptForStringDialog : Window
+public partial class PromptForStringDialog : AppWindow
 {
     public PromptForStringDialog()
     {

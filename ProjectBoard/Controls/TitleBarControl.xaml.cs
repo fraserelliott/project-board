@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using ProjectBoard.Views;
+using ProjectBoard.Windows;
 
 namespace ProjectBoard.Controls;
 
@@ -21,9 +21,22 @@ public partial class TitleBarControl : UserControl
             typeof(TitleBarControl),
             new PropertyMetadata(true));
 
+    public static readonly DependencyProperty RenderTitleProperty =
+        DependencyProperty.Register(
+            nameof(RenderTitle),
+            typeof(bool),
+            typeof(TitleBarControl),
+            new PropertyMetadata(true));
+
     public TitleBarControl()
     {
         InitializeComponent();
+    }
+
+    public bool RenderTitle
+    {
+        get => (bool)GetValue(RenderTitleProperty);
+        set => SetValue(RenderTitleProperty, value);
     }
 
     public bool ShowMinimize

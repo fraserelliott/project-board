@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Shell;
 
-namespace ProjectBoard.Views;
+namespace ProjectBoard.Windows;
 
 public class AppWindow : Window
 {

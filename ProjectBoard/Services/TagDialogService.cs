@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using ProjectBoard.Stores;
 using ProjectBoard.ViewModels.Dialogs;
-using ProjectBoard.Views;
+using ProjectBoard.Windows;
 
 namespace ProjectBoard.Services;
 
