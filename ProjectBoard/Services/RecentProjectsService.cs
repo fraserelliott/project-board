@@ -58,7 +58,13 @@ public class RecentProjectsService
 
     public void Load()
     {
-        // TODO: implement loading recent projects
+        var serializer = new JsonProgramDataSerializer();
+        var json = File.ReadAllText(GetProgramDataPath());
+        var data = serializer.Deserialize(json);
+
+        _recentProjects.Clear();
+        foreach (var recentProject in data.RecentProjects) _recentProjects.Add(RecentProject.FromData(recentProject));
+        SortAndTrim();
     }
 
     private static string GetProgramDataPath()

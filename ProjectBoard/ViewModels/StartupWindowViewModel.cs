@@ -19,14 +19,19 @@ public class StartupWindowViewModel : ObservableObject
 {
     private readonly ObservableCollection<RecentProjectViewModel> _recentProjects = new();
     private readonly RecentProjectsService _recentProjectsService = new();
-    public ReadOnlyObservableCollection<RecentProjectViewModel> RecentProjects;
 
     public StartupWindowViewModel()
     {
+        _recentProjectsService.Load();
         NewProjectCommand = new RelayCommand(HandleNewProject);
         LoadProjectCommand = new RelayCommand(HandleLoadProject);
         RecentProjects = new ReadOnlyObservableCollection<RecentProjectViewModel>(_recentProjects);
+
+        foreach (var recentProject in _recentProjectsService.RecentProjects)
+            _recentProjects.Add(new RecentProjectViewModel(recentProject));
     }
+
+    public ReadOnlyObservableCollection<RecentProjectViewModel> RecentProjects { get; }
 
     public RelayCommand NewProjectCommand { get; }
     public RelayCommand LoadProjectCommand { get; }
