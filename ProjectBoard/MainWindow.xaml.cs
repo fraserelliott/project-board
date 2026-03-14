@@ -69,7 +69,6 @@ public partial class MainWindow : Window
 
     private void LaunchProject(ProjectSession session)
     {
-        // TODO: save recent projects
         var projectWindow = new ProjectWindow
         {
             DataContext = new ProjectViewModel(session)
