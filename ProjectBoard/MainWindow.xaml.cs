@@ -30,24 +30,28 @@ public partial class MainWindow : Window
             {
                 case NewProjectIntent newProject:
                 {
-                    var project = new Project(newProject.Name);
+                    var project = new Project(newProject.Name, Guid.NewGuid());
                     var serializer = new JsonProjectSerializer();
                     var projectSession = new ProjectSession(
                         project,
                         new FileProjectPersistenceService(newProject.FilePath, serializer));
 
                     projectSession.SaveNow();
+                    RegisterRecentProject(vm, projectSession, newProject.FilePath);
                     LaunchProject(projectSession);
                     Close();
                     break;
                 }
 
                 case LoadProjectIntent loadProject:
-                    var session = LoadSession(loadProject.FilePath);
-                    if (session is null) return;
-                    LaunchProject(session);
+                {
+                    var projectSession = LoadSession(loadProject.FilePath);
+                    if (projectSession is null) return;
+                    RegisterRecentProject(vm, projectSession, loadProject.FilePath);
+                    LaunchProject(projectSession);
                     Close();
                     break;
+                }
             }
         }
         catch (Exception ex)
@@ -60,25 +64,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ShowDemoButton_Click(object sender, RoutedEventArgs e)
-    {
-        var project = CreateDemoProject();
-        var session = CreateSession(project, "test.json");
-        LaunchProject(session);
-    }
-
-    private void LoadTestButton_Click(object sender, RoutedEventArgs e)
-    {
-        var session = LoadSession("test.json");
-
-        if (session is not null)
-            LaunchProject(session);
-    }
-
     private void LaunchProject(ProjectSession session)
     {
         // TODO: save recent projects
-
         var projectWindow = new ProjectWindow
         {
             DataContext = new ProjectViewModel(session)
@@ -89,9 +77,18 @@ public partial class MainWindow : Window
         Close();
     }
 
+    private void RegisterRecentProject(StartupWindowViewModel vm, ProjectSession session, string filePath)
+    {
+        vm.UpdateRecentProject(
+            session.Project.Id,
+            session.Project.Name,
+            filePath,
+            DateTime.Now);
+    }
+
     private Project CreateDemoProject()
     {
-        var project = new Project("My Project");
+        var project = new Project("My Project", Guid.NewGuid());
         var taskA = project.AddTask("Create context for authentication");
         var b = project.AddTask("Create login page");
         var c = project.AddTask("Create endpoint /api/users/login");

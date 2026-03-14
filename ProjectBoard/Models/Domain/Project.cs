@@ -12,12 +12,14 @@ public sealed class Project
     private readonly List<TaskItem> _tasks = new();
     private readonly Dictionary<Guid, TaskItem> _tasksById = new();
 
-    public Project(string name)
+    public Project(string name, Guid id)
     {
         Rename(name);
+        Id = id;
     }
 
     public string Name { get; private set; } = "";
+    public Guid Id { get; init; }
     public IReadOnlyList<Tag> Tags => _tags;
     public IReadOnlyList<TaskItem> Tasks => _tasks;
     public IReadOnlyList<Note> Notes => _notes;
@@ -377,7 +379,7 @@ public sealed class Project
 
     public static Project FromData(ProjectData data)
     {
-        var project = new Project(data.Name);
+        var project = new Project(data.Name, data.Id);
 
         foreach (var tagData in data.Tags)
         {
@@ -407,6 +409,7 @@ public sealed class Project
     {
         return new ProjectData
         {
+            Id = Id,
             Name = Name,
             Tasks = _tasks.Select(t => t.ToData()).ToList(),
             Tags = _tags.Select(t => t.ToData()).ToList(),

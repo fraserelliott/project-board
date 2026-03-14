@@ -1,6 +1,9 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
+using ProjectBoard.Models;
+using ProjectBoard.Models.Domain;
 using ProjectBoard.Services;
 using ProjectBoard.Stores;
 
@@ -14,10 +17,15 @@ public sealed record LoadProjectIntent(string FilePath) : LaunchProjectIntent;
 
 public class StartupWindowViewModel : ObservableObject
 {
+    private readonly ObservableCollection<RecentProjectViewModel> _recentProjects = new();
+    private readonly RecentProjectsService _recentProjectsService = new();
+    public ReadOnlyObservableCollection<RecentProjectViewModel> RecentProjects;
+
     public StartupWindowViewModel()
     {
         NewProjectCommand = new RelayCommand(HandleNewProject);
         LoadProjectCommand = new RelayCommand(HandleLoadProject);
+        RecentProjects = new ReadOnlyObservableCollection<RecentProjectViewModel>(_recentProjects);
     }
 
     public RelayCommand NewProjectCommand { get; }
@@ -79,5 +87,31 @@ public class StartupWindowViewModel : ObservableObject
             return new OperationResult(false, new RefreshNone(), "Project name must be provided.");
 
         return new OperationResult(true, new StringResult(name));
+    }
+
+    private void AddRecentProject(string name, string filePath, DateTime? lastOpened)
+    {
+        lastOpened = lastOpened ?? DateTime.Now;
+    }
+
+    public void UpdateRecentProject(Guid projectId, string projectName, string filePath, DateTime lastOpened)
+    {
+        var result = _recentProjectsService.UpdateRecentProject(projectId, projectName, filePath, lastOpened);
+        switch (result)
+        {
+            case UpdatedRecentProject(Guid id):
+            {
+                var vm = _recentProjects.FirstOrDefault(p => p.Id == id);
+                if (vm is null) return;
+                vm.Refresh();
+                break;
+            }
+            case AddedRecentProject(RecentProject project):
+            {
+                var vm = new RecentProjectViewModel(project);
+                _recentProjects.Add(vm);
+                break;
+            }
+        }
     }
 }

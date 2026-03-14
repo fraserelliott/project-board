@@ -6,4 +6,5 @@ public sealed class ProjectData
     public List<TaskItemData> Tasks { get; set; } = new();
     public List<TagData> Tags { get; set; } = new();
     public List<NoteData> Notes { get; set; } = new();
+    public Guid Id { get; set; }
 }
