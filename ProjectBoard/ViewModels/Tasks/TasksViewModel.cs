@@ -50,6 +50,7 @@ public sealed class TasksViewModel : ObservableObject
     public RelayCommand<Guid> ShowDetailsCommand { get; }
 
     public ObservableCollection<TaskItemViewModel> Tasks { get; }
+    public bool HasTasks => Tasks.Count > 0;
     public ReadOnlyObservableCollection<ExistingTagOption> AllTagOptions { get; }
 
     public TaskItemViewModel? SelectedTask

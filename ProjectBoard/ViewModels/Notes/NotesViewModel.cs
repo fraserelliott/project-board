@@ -82,7 +82,7 @@ public sealed class NotesViewModel : ObservableObject
 
           You don't have any notes yet.
 
-          Press **+** to create one.
+          Press **Ctrl+N** to create one.
 
           Did you know you can use **Markdown** in these notes?  
           This panel is also rendered using Markdown, so your notes will appear with the same formatting.
@@ -106,6 +106,7 @@ public sealed class NotesViewModel : ObservableObject
           - `inline code`
           """;
 
+    
     private bool FilterNotes(object obj)
     {
         if (obj is not NoteViewModel note)
@@ -135,6 +136,7 @@ public sealed class NotesViewModel : ObservableObject
             var note = _session.GetNote(r.NoteId);
             var vm = new NoteViewModel(this, note, _session);
             _notes.Add(vm);
+            OnPropertyChanged(nameof(UnselectedText));
         }
     }
 

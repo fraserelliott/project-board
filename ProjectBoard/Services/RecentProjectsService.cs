@@ -59,6 +59,7 @@ public class RecentProjectsService
     public void Load()
     {
         var serializer = new JsonProgramDataSerializer();
+        if (!File.Exists(GetProgramDataPath())) return;
         var json = File.ReadAllText(GetProgramDataPath());
         var data = serializer.Deserialize(json);
 

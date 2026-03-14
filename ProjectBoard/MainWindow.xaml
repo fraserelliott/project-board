@@ -24,7 +24,8 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Margin="0, 0, 16, 0" Style="{StaticResource PanelBorder}">
+            <Border Grid.Column="0" Margin="0, 0, 16, 0" Style="{StaticResource PanelBorder}"
+                    Visibility="{Binding HasRecentProjects, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -34,6 +35,7 @@
 
                     <TextBlock Grid.Row="0" Text="Search Recent Projects" Style="{StaticResource VerticalFieldLabel}" />
                     <TextBox Grid.Row="1" Style="{StaticResource FieldTextBox}" />
+
                     <ListView Grid.Row="2" ItemsSource="{Binding RecentProjects}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -46,8 +48,9 @@
                                     <StackPanel Margin="0,6">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
 
-                                        <TextBlock Text="{Binding FilePath}" Margin="0,2,0,0" Opacity="0.75"
-                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding FilePath}" Margin="0,2,0,0"
+                                                   Foreground="{StaticResource TextMuted}"
+                                                   TextTrimming="CharacterEllipsis" Opacity="0.8" />
 
                                         <TextBlock Text="{Binding LastOpenedString}" Margin="0,2,0,0" Opacity="0.65"
                                                    FontSize="11" />
@@ -56,12 +59,21 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-
                 </Grid>
+            </Border>
+
+            <Border Grid.Column="0" Margin="0, 0, 16, 0" Style="{StaticResource PanelBorder}"
+                    Visibility="{Binding HasRecentProjects, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <TextBlock Grid.Row="2" FontSize="16" TextWrapping="Wrap">
+                    <Run FontWeight="Bold">No recent projects</Run><LineBreak /><LineBreak />
+                    Create a new project or open an existing one.<LineBreak />
+                    You can also clone the demo project to explore the features.
+                </TextBlock>
             </Border>
 
             <Border Grid.Column="1" Style="{StaticResource PanelBorder}">
                 <StackPanel>
+                    <TextBlock Style="{StaticResource VerticalFieldLabel}" Text="Get Started" />
                     <Button Style="{StaticResource PrimaryButton}" Margin="0,0,0,8"
                             Command="{Binding NewProjectCommand}">
                         <StackPanel Orientation="Horizontal">

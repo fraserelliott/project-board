@@ -33,7 +33,7 @@ public class StartupWindowViewModel : ObservableObject
     }
 
     public ReadOnlyObservableCollection<RecentProjectViewModel> RecentProjects { get; }
-
+    public bool HasRecentProjects => _recentProjects.Count > 0;
     public RelayCommand NewProjectCommand { get; }
     public RelayCommand LoadProjectCommand { get; }
     public RelayCommand<RecentProjectViewModel> OpenRecentProjectCommand { get; }
