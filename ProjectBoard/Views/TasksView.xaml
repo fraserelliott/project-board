@@ -4,6 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controls="clr-namespace:ProjectBoard.Controls" mc:Ignorable="d" d:DesignHeight="450"
              d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="TaskRowStyleWithDoubleClick" TargetType="DataGridRow"
+               BasedOn="{StaticResource TaskDataGridRowStyle}">
+
+            <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_MouseDoubleClick" />
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -27,7 +34,7 @@
                   AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                   Background="{StaticResource BgPrimary}" Foreground="{StaticResource TextPrimary}"
                   GridLinesVisibility="None" HeadersVisibility="Column"
-                  RowStyle="{StaticResource TaskDataGridRowStyle}"
+                  RowStyle="{StaticResource TaskRowStyleWithDoubleClick}"
                   Visibility="{Binding HasTasks, Converter={StaticResource BoolToVisibilityConverter}}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />

@@ -156,9 +156,6 @@ public partial class MainWindow : AppWindow
 
     private void RecentProject_DoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (e.ClickCount != 2)
-            return;
-
         if (sender is Border border && border.DataContext is RecentProjectViewModel recentProjectViewModel &&
             DataContext is StartupWindowViewModel vm)
             vm.OpenRecentProjectCommand.Execute(recentProjectViewModel);
