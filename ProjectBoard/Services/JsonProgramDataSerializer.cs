@@ -7,7 +7,7 @@ public class JsonProgramDataSerializer
 {
     private static readonly JsonSerializerOptions _options = new()
     {
-        WriteIndented = true,
+        WriteIndented = false,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
