@@ -23,7 +23,10 @@ nearby.
 
 ## Screenshots
 
-
+![Main menu](https://github.com/fraserelliott/project-board/blob/master/readme-images/main%20menu.png)
+![Tasks screen](https://github.com/fraserelliott/project-board/blob/master/readme-images/tasks%20screen.png)
+![Task details window](https://github.com/fraserelliott/project-board/blob/master/readme-images/task%20details.png)
+![Notes screen](https://github.com/fraserelliott/project-board/blob/master/readme-images/notes%20screen.png)
 
 ---
 
