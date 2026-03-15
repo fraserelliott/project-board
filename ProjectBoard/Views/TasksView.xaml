@@ -18,8 +18,29 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,8">
-            <Button Content="New Task" Style="{StaticResource PrimaryButton}" Command="{Binding NewTaskCommand}"
-                    HorizontalAlignment="Left" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Content="New Task" Style="{StaticResource PrimaryButton}"
+                    Command="{Binding NewTaskCommand}" HorizontalAlignment="Left" />
+
+            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                <ToggleButton Content="&#xE930;" IsChecked="{Binding Filters.HideCompleted, Mode=TwoWay}"
+                              ToolTip="Hide completed tasks" FontFamily="Segoe MDL2 Assets" MinWidth="35"
+                              MinHeight="30" Style="{StaticResource EditToggleButton}" Margin="0,0,8,0" />
+                <ToggleButton Content="&#xE72E;" IsChecked="{Binding Filters.HideBlocked, Mode=TwoWay}"
+                              ToolTip="Hide blocked tasks" FontFamily="Segoe MDL2 Assets" MinWidth="35" MinHeight="30"
+                              Style="{StaticResource EditToggleButton}" Margin="0,0,8,0" />
+                <ToggleButton Content="&#xE7BA;" IsChecked="{Binding Filters.HideStale, Mode=TwoWay}"
+                              ToolTip="Hide stale tasks" FontFamily="Segoe MDL2 Assets" MinWidth="35" MinHeight="30"
+                              Style="{StaticResource EditToggleButton}" Margin="0,0,0,0" />
+                <Border Width="2" Height="18" Margin="6,0" Background="{StaticResource BtnPrimaryHover}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" />
+                <Button Content="&#xE894;" Command="{Binding ResetFiltersCommand}" ToolTip="Reset filters"
+                        MinHeight="30" FontFamily="Segoe MDL2 Assets" Width="35" Style="{StaticResource PrimaryButton}" />
+            </StackPanel>
         </Grid>
 
         <TextBlock Grid.Row="1" FontSize="16" TextWrapping="Wrap"
@@ -29,9 +50,9 @@
             Add your first task to get started.
         </TextBlock>
 
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
-                  SelectionMode="Single" SelectionUnit="FullRow" EnableRowVirtualization="True"
-                  AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
+        <DataGrid Grid.Row="1" ItemsSource="{Binding TasksCollectionView}"
+                  SelectedItem="{Binding SelectedTask, Mode=TwoWay}" SelectionMode="Single" SelectionUnit="FullRow"
+                  EnableRowVirtualization="True" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                   Background="{StaticResource BgPrimary}" Foreground="{StaticResource TextPrimary}"
                   GridLinesVisibility="None" HeadersVisibility="Column"
                   RowStyle="{StaticResource TaskRowStyleWithDoubleClick}"

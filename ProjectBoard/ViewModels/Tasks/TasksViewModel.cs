@@ -1,10 +1,13 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBoard.Services;
 using ProjectBoard.Stores;
 using ProjectBoard.Windows;
+using TaskStatus = ProjectBoard.Models.Domain.TaskStatus;
 
 namespace ProjectBoard.ViewModels.Tasks;
 
@@ -42,18 +45,21 @@ public sealed class TasksViewModel : ObservableObject
             _tasksById[vm.Id] = vm;
         }
 
+        TasksCollectionView = CollectionViewSource.GetDefaultView(Tasks);
+        TasksCollectionView.Filter = FilterTasks;
+        Filters.PropertyChanged += (_, __) => { TasksCollectionView.Refresh(); };
+
         NewTaskCommand = new RelayCommand(HandleNewTask);
         AdvanceStatusCommand = new RelayCommand<Guid>(AdvanceStatus, id => !_session.IsTaskBlocked(id));
         ShowDetailsCommand = new RelayCommand<Guid>(ShowDetails);
         UpdateTagCommand = new RelayCommand<Guid>(HandleUpdateTag);
         RemoveTagCommand = new RelayCommand<RemoveTagRequest>(HandleRemoveTag);
         DeleteTagCommand = new RelayCommand<Guid>(HandleDeleteTag);
+        ResetFiltersCommand = new RelayCommand(() => Filters.Reset());
     }
 
-    public RelayCommand<Guid> AdvanceStatusCommand { get; }
-    public RelayCommand<Guid> ShowDetailsCommand { get; }
-
     public ObservableCollection<TaskItemViewModel> Tasks { get; }
+    public ICollectionView TasksCollectionView { get; }
     public bool HasTasks => Tasks.Count > 0;
     public ReadOnlyObservableCollection<ExistingTagOption> AllTagOptions { get; }
 
@@ -63,10 +69,32 @@ public sealed class TasksViewModel : ObservableObject
         set => SetProperty(ref _selectedTask, value);
     }
 
+    public TaskFilters Filters { get; } = new();
+
+    public RelayCommand<Guid> AdvanceStatusCommand { get; }
+    public RelayCommand<Guid> ShowDetailsCommand { get; }
     public RelayCommand NewTaskCommand { get; }
     public RelayCommand<Guid> UpdateTagCommand { get; }
     public RelayCommand<RemoveTagRequest> RemoveTagCommand { get; }
     public RelayCommand<Guid> DeleteTagCommand { get; }
+    public RelayCommand ResetFiltersCommand { get; }
+
+    private bool FilterTasks(object obj)
+    {
+        if (obj is not TaskItemViewModel task)
+            return false;
+
+        if (Filters.HideCompleted && task.Status == TaskStatus.Completed)
+            return false;
+
+        if (Filters.HideStale && task.IsStale)
+            return false;
+
+        if (Filters.HideBlocked && task.IsBlocked)
+            return false;
+
+        return true;
+    }
 
     private void Notify(OperationResult result)
     {
